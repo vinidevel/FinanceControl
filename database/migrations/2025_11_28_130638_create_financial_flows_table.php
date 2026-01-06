@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('financial_flows', function (Blueprint $table) {
             $table->id();
-            $table->year('year');
+            $table->integer('year');
             $table->timestamps();
         });  
     }

@@ -32,11 +32,14 @@ export function DeleteDialog({ text, trigger, url, successMessage }: {
                             <Button variant="outline" onClick={() => { }}>{trans("Cancel")}</Button>
                         </DialogClose>
                         <Button variant="destructive" onClick={() => {
-                            fetchWithCsrf().delete(url).then(() => {
-                                toast(successMessage ?? "Deleted successfully")
+                            fetchWithCsrf().delete(url).then((response) => {
+                                toast.success(successMessage ?? "Deleted successfully")
                                 new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
                                     window.location.reload()
                                 })
+                            }).catch((err) => {
+                                const msg = err?.response?.data?.message ?? err?.message ?? "Delete failed";
+                                toast.error(msg);
                             })
                         }}>{trans("Delete")}</Button>
                     </div>

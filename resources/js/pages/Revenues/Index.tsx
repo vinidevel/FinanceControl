@@ -1,0 +1,47 @@
+import { trans } from "@/composables/translate";
+import AppLayout from "@/layouts/app-layout";
+import { Head, Link } from "@inertiajs/react";
+import { DataTable } from "../../components/Table/data-table";
+import { columns } from "./table/columns";
+import financialFlows from "@/routes/financial-flows";
+import { Button } from "@/components/ui/button";
+import revenueRoutes from "@/routes/revenues";
+
+
+import financialLaunchesRoutes from '@/routes/financial-launches';
+
+const breadcrumbs = [
+    { title: "Dashboard", href: "/" },
+    { title: "Financial Flows", href: financialFlows.index().url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index().url },
+    { title: "Revenues", href: revenueRoutes.index().url },
+];
+
+
+export default function RevenuesIndex({ revenues, financial_launch_id }: { revenues?: Paginated<Revenue>, financial_launch_id?: number }) {
+    const createHref = financial_launch_id ? `${revenueRoutes.create().url}?financial_launch_id=${encodeURIComponent(String(financial_launch_id))}` : revenueRoutes.create().url;
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+
+            <Head title={trans("Revenues")} />
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-1 md:p-4">
+                <aside className="flex items-center justify-end">
+                    <Link href={createHref} className="flex justify-center">
+                        <Button className="justify-center">
+                            Criar Receita
+                        </Button>
+                    </Link>
+                </aside>
+                <h1>{trans("Revenues")}</h1>
+
+                <DataTable columns={columns}
+                    data={revenues?.data ?? []}
+                    paginated={revenues}
+                />
+            </div>
+
+
+        </AppLayout>
+    );
+}

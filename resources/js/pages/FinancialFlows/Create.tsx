@@ -2,14 +2,10 @@ import Heading from "@/components/heading";
 import { trans } from "@/composables/translate";
 import AppLayout from "@/layouts/app-layout";
 import { Head, useForm } from "@inertiajs/react";
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns"
 
 import { toast } from "sonner";
 import financialFlows from "@/routes/financial-flows";
+import { Input } from "@/components/ui/input";
 
 
 
@@ -30,7 +26,7 @@ type FinancialFlowsItem = {
 
 export default function Create() {
     const { data, setData, post } = useForm({
-        year: new Date().getFullYear(), // agora começa como number
+        year: new Date().getFullYear(), 
         items: [] as FinancialFlowsItem[],
     })
 
@@ -60,35 +56,16 @@ export default function Create() {
                             <div className="flex items-center justify-between gap-5">
                                 <div className="grid gap-2">
                                     <label htmlFor="date" className="font-medium">{trans("Ano")}</label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                data-empty={!data.year}
-                                                className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
-                                            >
-                                                <CalendarIcon />
-                                                {data.year ? format(data.year, "yyyy") : <span>{trans("Pick a year")}</span>}
+                                    <Input
+                                        type="text"
+                                        name="year"
+                                        value={data.year}
+                                        placeholder={trans("year")}
+                                        className="block flex-1 border rounded px-3 py-2"
+                                        onChange={(e) => setData("year",  Number(e.target.value))}
 
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[320px] p-0">
-                                            <Calendar
-                                                mode="single"
-                                     
-                                                onSelect={(date) => {
-                                                    if (date) {
-                                                        setData("year", date.getFullYear());
-                                                    }
-                                                }}
-                                                captionLayout="dropdown"
-                                                hideNavigation
-                                                className="only-year-picker"
-                                            />
+                                    />
 
-
-                                        </PopoverContent>
-                                    </Popover>
                                 </div>
                             </div>
 
