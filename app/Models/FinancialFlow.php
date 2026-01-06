@@ -14,13 +14,20 @@ class FinancialFlow extends Model
     /**
      * Cast attributes to proper types.
      */
-    protected $casts = [
-        'year' => 'date',
-    ];
+
 
     public function financialLaunches()
     {
-         return $this->hasMany(FinancialLaunch::class, 'financial_flow_id');
+         return $this->hasMany(FinancialLaunch::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($flow) {
+            if ($flow->financialLaunches()->exists()) {
+                throw new \Exception('Cannot delete Financial Flow with associated Financial Launches.');
+            }
+        });
     }
 
 

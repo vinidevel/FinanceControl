@@ -7,39 +7,44 @@ import { Link } from '@inertiajs/react';
 import financialLaunches from '@/routes/financial-launches';
 import { PencilLine } from "lucide-react";
 import { DeleteDialog } from "@/components/delete-dialog";
-import financialFlows from "@/routes/financial-flows";
+import revenues from "@/routes/revenues";
 
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<FinancialFlow>[] = [
+export const columns: ColumnDef<FinancialLaunch>[] = [
     {
-        accessorKey: "year",
-        header: () => <div className="text-start text-xs md:text-base">{trans("Year")}</div>,
-        cell: ({ row }) => {
-            const year = row.getValue("year") as number;
-            return <div className="text-start text-xs md:text-base">{year}</div>
+        accessorKey: "month",
+        header: () => <div className="text-start text-xs md:text-base">{trans("Month")}</div>,
+        cell: ({ row }) => {    const dateStr = row.getValue("month") as string | null;
+    if (!dateStr) return <div className="text-start text-xs md:text-base">—</div>;
+
+    // evita problemas de fuso se a string for 'YYYY-MM-DD'
+    const date = new Date(dateStr.length === 10 ? dateStr + "T00:00:00" : dateStr);
+    const monthName = date.toLocaleString("pt-BR", { month: "long" }); // "agosto"
+    return <div className="text-start text-xs md:text-base">{monthName.charAt(0).toUpperCase() + monthName.slice(1) }</div>;
         }
     },
 
+    
     {
-        accessorKey: "financialLaunches",
-        header: () => <div className="text-center text-xs md:text-base">{trans("Financial Lanches")}</div>,
+        accessorKey: "revenues",
+        header: () => <div className="text-center text-xs md:text-base">{trans("Revenues")}</div>,
         size: 200,
         cell: ({ row }) => {
             return (
                 <div className="flex justify-center">
 
                     <Button className="justify-center">
-                        <Link href={`${financialLaunches.index().url}?financial_flow_id=${encodeURIComponent(String(row.original.id))}`} className="flex justify-center">
-                            Acessar lançamentos
+                        <Link href={`${revenues.index().url}?financial_launch_id=${encodeURIComponent(String(row.original.id))}`} className="flex justify-center">
+                            Entradas
                         </Link>
                     </Button>
                 </div>
             )
         }
     },
+
+    
 
     {
         accessorKey: "actions",
@@ -55,16 +60,16 @@ export const columns: ColumnDef<FinancialFlow>[] = [
                         </Link>
                     </Button> */}
                     <Button variant="ghost" type="button" className="p-0 m-0">
-                        <Link href={financialFlows.edit(row.original.id).url}>
+                        <Link href={financialLaunches.edit(row.original.id).url}>
                             <span className="hidden md:inline">
                                 <PencilLine className="size-4" />
                             </span>
                         </Link>
                     </Button>
                     <DeleteDialog
-                        url={financialFlows.destroy(row.original.id).url}
-                        text={trans("Are you sure you want to delete this Financial Flow?")}
-                        successMessage={trans("Financial Flow deleted successfully.")}
+                        url={financialLaunches.destroy(row.original.id).url}
+                        text={trans("Are you sure you want to delete this Financial Launch?")}
+                        successMessage={trans("Financial Launch deleted successfully.")}
                     />
                 </div>
             )

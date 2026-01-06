@@ -10,7 +10,6 @@ class Revenue extends Model
     protected $fillable = [
         'financial_launch_id',
         'revenue_type_id',
-        'payment_method_id',
         'value',
         'description',
     ];
@@ -22,8 +21,5 @@ class Revenue extends Model
     {
         return $this->belongsTo(RevenueType::class, 'revenue_type_id');
     }
-    public function paymentMethod()
-    {
-        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
-    }
+
 }
