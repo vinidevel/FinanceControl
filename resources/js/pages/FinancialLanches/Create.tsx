@@ -2,19 +2,20 @@ import Heading from "@/components/heading";
 import { trans } from "@/composables/translate";
 import AppLayout from "@/layouts/app-layout";
 import { Head, useForm } from "@inertiajs/react";
-import { useEffect } from "react";
 
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import financialLaunches from "@/routes/financial-launches";
 import financialFlows from "@/routes/financial-flows";
+import { Button } from "@/components/ui/button";
+import { dashboard } from "@/routes";
 
 
 
-const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+const breadcrumbs = (financial_flow_id: number) => [
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: "/financial-launches" },
+    { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
     { title: "Add Financial Launch", href: "/financial-launches/create" },
 ];
 
@@ -26,40 +27,24 @@ type FinancialLaunchesItem = {
 
 
 
-
-
 export default function Create({ financial_flow_id }: { financial_flow_id?: number }) {
+
     const { data, setData, post } = useForm({
         month: new Date().toISOString().slice(0, 7),
-        financial_flow_id: financial_flow_id ?? null,
         items: [] as FinancialLaunchesItem[],
     })
-
-    useEffect(() => {
-        if (financial_flow_id) {
-            setData('financial_flow_id', financial_flow_id);
-        }
-    }, [financial_flow_id]);
-
 
 
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        post(financialLaunches.store.url(), {
-
-            onError: () => {
-                toast.error(trans("An error occurred while creating the financial launch."));
-            },
-            onSuccess: () => {
-                toast.success(trans("Financial launch created successfully."));
-            }
-        })
+        post(financialLaunches.store.url({financial_flow: financial_flow_id!}))
+        toast.success(trans("Financial launch created successfully"));
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_flow_id!)}>
             <Head title={trans("Add financial launch")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Add financial launch")} description={trans("Create a new financial launch record")} />
@@ -82,10 +67,9 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
                                 </div>
                             </div>
 
-                            <input type="hidden" name="financial_flow_id" value={data.financial_flow_id ?? ''} />
 
                             <div className="flex items-center justify-center md:justify-end gap-4">
-                                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded w-full md:w-fit md:min-w-24">{trans("Save")}</button>
+                                <Button type="submit" >{trans("Save")}</Button>
                             </div>
                         </div>
                     </form>

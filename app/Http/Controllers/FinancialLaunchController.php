@@ -12,14 +12,14 @@ class FinancialLaunchController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, FinancialFlow $financialFlow)
     {
+
         $perPage = $request->input('perPage', 20);
-        $id = $request->input('financial_flow_id');
 
         $query = FinancialLaunch::query();
-        if ($id) {
-            $query->where('financial_flow_id', $id);
+        if ($financialFlow) {
+            $query->where('financial_flow_id', $financialFlow->id);
         }
 
         $financialLaunches = $query->orderBy('id', 'desc')
@@ -28,16 +28,16 @@ class FinancialLaunchController extends Controller
 
         return inertia('FinancialLanches/Index', [
             'financialLaunches' => $financialLaunches,
-            'financial_flow_id' => $id,
+            'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(Request $request, FinancialFlow $financialFlow)
     {
-        $financial_flow_id = $request->input('financial_flow_id');
+        $financial_flow_id = $financialFlow ? $financialFlow->id : null;
         return inertia('FinancialLanches/Create', [
             'financial_flow_id' => $financial_flow_id,
         ]);
@@ -46,11 +46,10 @@ class FinancialLaunchController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, FinancialFlow $financialFlow)
     {
         $request->validate([
-            'month' => 'required|date_format:Y-m',
-            'financial_flow_id' => 'required|exists:financial_flows,id',
+            'month' => 'required|date_format:Y-m'
         ]);
 
         // Ensure the stored date has day = 1 (Y-m-01)
@@ -58,10 +57,11 @@ class FinancialLaunchController extends Controller
 
         FinancialLaunch::create([
             'month' => $month,
-            'financial_flow_id' => $request->financial_flow_id,
+            'financial_flow_id' => $financialFlow->id,
         ]);
 
-        return to_route('financial-launches.index', ['financial_flow_id' => $request->financial_flow_id])->with('success', 'Financial Launch created successfully.');
+
+        return to_route('financial-launches.index', ['financial_flow' => $financialFlow->id])->with('success', 'Financial Launch created successfully.');
     }
 
     /**
@@ -75,10 +75,12 @@ class FinancialLaunchController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(FinancialLaunch $financialLaunch)
+    public function edit(FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
+
         return inertia('FinancialLanches/Edit', [
             'financialLaunch' => $financialLaunch,
+            'financial_flow_id' => $financialFlow->id,
         ]);
     }
 
@@ -98,7 +100,7 @@ class FinancialLaunchController extends Controller
         ]);
 
         return to_route('financial-launches.index', ['financial_flow_id' => $financialLaunch->financial_flow_id])->with('success', 'Financial Launch updated successfully.');
-       
+
     }
 
     /**

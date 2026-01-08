@@ -32,7 +32,7 @@ export const columns: ColumnDef<FinancialFlow>[] = [
                 <div className="flex justify-center">
 
                     <Button className="justify-center">
-                        <Link href={`${financialLaunches.index().url}?financial_flow_id=${encodeURIComponent(String(row.original.id))}`} className="flex justify-center">
+                        <Link href={`${financialLaunches.index({ financial_flow: row.original.id }).url}`} className="flex justify-center">
                             Acessar lançamentos
                         </Link>
                     </Button>

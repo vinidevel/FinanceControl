@@ -6,7 +6,7 @@ import { columns } from "./table/columns";
 import products from "@/routes/products";
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Products", href: products.index().url },
 ];
 

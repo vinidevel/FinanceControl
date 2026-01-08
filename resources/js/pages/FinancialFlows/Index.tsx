@@ -4,15 +4,16 @@ import { Head } from "@inertiajs/react";
 import { DataTable } from "../../components/Table/data-table";
 import { columns } from "./table/columns";
 import financialFlows from "@/routes/financial-flows";
+import { dashboard } from "@/routes";
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
 ];
 
 
 export default function FinancialFlowsIndex({ financialFlows }: { financialFlows?: Paginated<FinancialFlow> }) {
-    console.log(financialFlows);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={trans("Financial Flows")} />

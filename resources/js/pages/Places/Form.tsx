@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Places", href: places.index().url },
 ];
 

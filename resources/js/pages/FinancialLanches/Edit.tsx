@@ -8,30 +8,17 @@ import { CircleAlert } from 'lucide-react';
 import FinancialLaunchController from '@/actions/App/Http/Controllers/FinancialLaunchController';
 import financialFlows from '@/routes/financial-flows';
 import financialLaunchesRoutes from '@/routes/financial-launches';
+import { dashboard } from '@/routes';
 
 
+const breadcrumbs = (financialLaunch: FinancialLaunch) => [
+    { title: "Dashboard", href: dashboard.url() },
+    { title: "Financial Flows", href: financialFlows.index().url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index({financial_flow: financialLaunch.financial_flow_id}).url },
+    { title: "Edit Financial Launch", href: `${financialLaunchesRoutes.edit({financial_flow: financialLaunch.financial_flow_id, financial_launch: financialLaunch.id}).url}` },
+];
+export default function Edit({ financialLaunch }: { financialLaunch: FinancialLaunch }) {
 
-
-
-interface FinancialLaunch {
-    id: number;
-    month: string;
-    financial_flow_id?: number;
-
-}
-
-interface Props {
-    financialLaunch: FinancialLaunch;
-}
-
-export default function Edit({ financialLaunch }: Props) {
-
-    const breadcrumbs = [
-        { title: "Dashboard", href: "/" },
-        { title: "Financial Flows", href: financialFlows.index().url },
-        { title: "Financial Launches", href: financialLaunch.financial_flow_id ? `${financialLaunchesRoutes.index().url}?financial_flow_id=${encodeURIComponent(String(financialLaunch.financial_flow_id))}` : financialLaunchesRoutes.index().url },
-        { title: "Edit Financial Launch", href: `${financialLaunchesRoutes.edit(financialLaunch.id).url}` },
-    ];
 
 
     const { data, setData, put, processing, errors } = useForm({
@@ -41,13 +28,16 @@ export default function Edit({ financialLaunch }: Props) {
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(data);
-        put(FinancialLaunchController.update.url(financialLaunch.id));
+
+        put(FinancialLaunchController.update.url({
+            financial_flow: financialLaunch.financial_flow_id,
+            financial_launch: financialLaunch.id
+        }));
 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs(financialLaunch)}>
             <Head title="Edit Financial Launch" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>

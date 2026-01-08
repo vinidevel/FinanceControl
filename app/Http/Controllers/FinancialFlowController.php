@@ -34,7 +34,7 @@ class FinancialFlowController extends Controller
      */
     public function store(Request $request)
     {
-      
+
         // dd($request->all());
         $request->validate([
             // expect a date string (YYYY-MM-DD). Use date validation and keep uniqueness on the column
@@ -60,7 +60,7 @@ class FinancialFlowController extends Controller
      */
     public function edit(FinancialFlow $financialFlow)
     {
-        
+
         return inertia('FinancialFlows/Edit', [
             'financialFlow' => $financialFlow,
         ]);
@@ -71,7 +71,7 @@ class FinancialFlowController extends Controller
      */
     public function update(Request $request, FinancialFlow $financialFlow)
     {
-        
+
         $request->validate([
             // expect a date string (YYYY-MM-DD). Use date validation and keep uniqueness on the column
            'year' => 'required|digits:4|integer|unique:financial_flows,year,'.$financialFlow->id,
@@ -89,15 +89,15 @@ class FinancialFlowController extends Controller
     public function delete(FinancialFlow $financialFlow)
     {
         $financialFlow->delete();
-        
+
 
         return response()->noContent(202);
     }
 
-        public function destroy(Request $request, FinancialFlow $financialFlow)
+    public function destroy(Request $request, FinancialFlow $financialFlow)
     {
         try {
-     
+
             if ($financialFlow->financialLaunches()->exists()) {
                 $message = 'Cannot delete Financial Flow with associated Financial Launches.';
                 if ($request->wantsJson()) {

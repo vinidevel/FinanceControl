@@ -25,7 +25,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         }
     },
 
-    
+
     {
         accessorKey: "revenues",
         header: () => <div className="text-center text-xs md:text-base">{trans("Revenues")}</div>,
@@ -35,7 +35,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
                 <div className="flex justify-center">
 
                     <Button className="justify-center">
-                        <Link href={`${revenues.index().url}?financial_launch_id=${encodeURIComponent(String(row.original.id))}`} className="flex justify-center">
+                        <Link href={revenues.index({financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
                             Entradas
                         </Link>
                     </Button>
@@ -44,7 +44,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         }
     },
 
-    
+
 
     {
         accessorKey: "actions",
@@ -60,14 +60,20 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
                         </Link>
                     </Button> */}
                     <Button variant="ghost" type="button" className="p-0 m-0">
-                        <Link href={financialLaunches.edit(row.original.id).url}>
+                        <Link href={financialLaunches.edit({
+                            financial_flow: row.original.financial_flow_id,
+                            financial_launch: row.original.id
+                        }).url}>
                             <span className="hidden md:inline">
                                 <PencilLine className="size-4" />
                             </span>
                         </Link>
                     </Button>
                     <DeleteDialog
-                        url={financialLaunches.destroy(row.original.id).url}
+                        url={financialLaunches.destroy({
+                            financial_flow: row.original.financial_flow_id,
+                            financial_launch: row.original.id
+                        }).url}
                         text={trans("Are you sure you want to delete this Financial Launch?")}
                         successMessage={trans("Financial Launch deleted successfully.")}
                     />

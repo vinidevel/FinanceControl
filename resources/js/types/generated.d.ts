@@ -89,4 +89,31 @@ declare namespace App.Models {
         timestamps: boolean;
         usesUniqueIds: boolean;
     };
+
+    export type FinancialFlow = {
+        id: number;
+        year: number;
+        created_at: string;
+        updated_at: string;
+    };
+
+    export type FinancialLaunch = {
+        id: number;
+        month: string | null;
+        financial_flow_id: number;
+        created_at: string;
+        updated_at: string;
+    };
+
+    export type Revenue = {
+        id: number;
+        description: string | null;
+        value: number | null;
+        revenue_type_id: number | null;
+        financial_flow_id: number | null;
+        financial_launch_id: number | null;
+        created_at: string;
+        updated_at: string;
+    };
+
 }

@@ -6,11 +6,12 @@ import { Head, useForm } from "@inertiajs/react";
 import { toast } from "sonner";
 import financialFlows from "@/routes/financial-flows";
 import { Input } from "@/components/ui/input";
+import { dashboard } from "@/routes";
 
 
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: "/financial-flows" },
     { title: "Add Financial Flow", href: "/financial-flows/create" },
 ];
@@ -26,7 +27,7 @@ type FinancialFlowsItem = {
 
 export default function Create() {
     const { data, setData, post } = useForm({
-        year: new Date().getFullYear(), 
+        year: new Date().getFullYear(),
         items: [] as FinancialFlowsItem[],
     })
 

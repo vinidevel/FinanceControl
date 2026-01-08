@@ -37,22 +37,24 @@ export const columns: ColumnDef<Revenue>[] = [
         cell: ({ row }) => {
             return (
                 <div className="flex w-full justify-center gap-2">
-                    {/* <Button variant="ghost" type="button" className="p-0 m-0">
-                        <Link href={financialFlows.show(row.original.id).url}>
-                            <span className="hidden md:inline">
-                                <Eye className="size-4" />
-                            </span>
-                        </Link>
-                    </Button> */}
+
                     <Button variant="ghost" type="button" className="p-0 m-0">
-                        <Link href={revenues.edit(row.original.id).url}>
+                        <Link href={revenues.edit({
+                            financial_flow: row.original.financial_flow_id!,
+                            financial_launch: row.original.financial_launch_id!,
+                            revenue: row.original.id
+                        }).url}>
                             <span className="hidden md:inline">
                                 <PencilLine className="size-4" />
                             </span>
                         </Link>
                     </Button>
                     <DeleteDialog
-                        url={revenues.destroy(row.original.id).url}
+                        url={revenues.destroy({
+                            financial_flow: row.original.financial_flow_id!,
+                            financial_launch: row.original.financial_launch_id!,
+                            revenue: row.original.id
+                        }).url}
                         text={trans("Are you sure you want to delete this Revenue ?")}
                         successMessage={trans("Revenue  deleted successfully.")}
                     />

@@ -2,20 +2,22 @@ import Heading from "@/components/heading";
 import { trans } from "@/composables/translate";
 import AppLayout from "@/layouts/app-layout";
 import { Head, useForm } from "@inertiajs/react";
-import { useEffect } from "react";
 
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import financialFlows from "@/routes/financial-flows";
 import revenueRoutes from "@/routes/revenues";
+import { Button } from "@/components/ui/button";
+import financialLaunches from "@/routes/financial-launches";
+import { dashboard } from "@/routes";
 
 
 
-const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+const breadcrumbs = ({ financial_flow_id, financial_launch_id }: { financial_flow_id: number, financial_launch_id: number }) => [
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: "/financial-launches" },
-    { title: "Revenues", href: revenueRoutes.index().url },
+    { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
+    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
     { title: "Add Revenue", href: "/revenues/create" },
 ];
 
@@ -31,28 +33,22 @@ type RevenuesItem = {
 
 
 
-export default function Create({ financial_launch_id, revenue_types }: { financial_launch_id?: number, revenue_types?: RevenueType[] }) {
+export default function Create({ financial_launch_id, revenue_types, financial_flow_id }: { financial_launch_id?: number, revenue_types?: RevenueType[], financial_flow_id?: number }) {
     const { data, setData, post } = useForm({
         description: '',
         value: 0,
         revenue_type_id: 0,
-        financial_launch_id: financial_launch_id ?? null,
         items: [] as RevenuesItem[],
     })
-
-    useEffect(() => {
-        if (financial_launch_id) {
-            setData('financial_launch_id', financial_launch_id);
-        }
-    }, [financial_launch_id]);
-
-
 
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        post(revenueRoutes.store.url(), {
+        post(revenueRoutes.store.url({
+            financial_flow: financial_flow_id!,
+            financial_launch: financial_launch_id!
+        }), {
 
             onError: () => {
                 toast.error(trans("An error occurred while creating the revenue."));
@@ -64,7 +60,10 @@ export default function Create({ financial_launch_id, revenue_types }: { financi
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs({
+            financial_flow_id: financial_launch_id!,
+            financial_launch_id: financial_launch_id!
+        })}>
             <Head title={trans("Add revenue")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Add revenue")} description={trans("Create a new revenue record")} />
@@ -86,10 +85,9 @@ export default function Create({ financial_launch_id, revenue_types }: { financi
 
                                 </div>
 
-                                   
+
                                 <div className="grid gap-2">
-                                    <label htmlFor="value" className="font-medium
-">{trans("value")}</label>
+                                    <label htmlFor="value" className="font-medium">{trans("value")}</label>
                                     <Input
                                         type="number"
                                         name="value"
@@ -112,7 +110,7 @@ export default function Create({ financial_launch_id, revenue_types }: { financi
                                         className="block flex-1 border rounded px-3 py-2 "
                                     >
                                         <option value="0">{trans("Select Revenue Type")}</option>
-                                        {(revenue_types ?? []).map((rt: any) => (
+                                        {(revenue_types ?? []).map((rt: RevenueType) => (
                                             <option className="text-black" key={rt.id} value={rt.id}>{rt.name}</option>
                                         ))}
                                     </select>
@@ -120,14 +118,9 @@ export default function Create({ financial_launch_id, revenue_types }: { financi
                                 </div>
                             </div>
 
-                        
-                         
-
-
-                            <input type="hidden" name="financial_launch_id" value={data.financial_launch_id ?? ''} />
 
                             <div className="flex items-center justify-center md:justify-end gap-4">
-                                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded w-full md:w-fit md:min-w-24">{trans("Save")}</button>
+                                <Button type="submit">{trans("Save")}</Button>
                             </div>
                         </div>
                     </form>

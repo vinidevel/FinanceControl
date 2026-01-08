@@ -4,9 +4,10 @@ import { Head } from "@inertiajs/react";
 import { DataTable } from "../../components/Table/data-table";
 import { columns } from "./table/columns";
 import { formatToUtc } from "@/utils/date";
+import { dashboard } from "@/routes";
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Purchases", href: "/purchases" },
 ];
 

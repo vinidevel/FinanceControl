@@ -5,22 +5,23 @@ import { DataTable } from "../../components/Table/data-table";
 import { columns } from "./table/columns";
 import financialFlows from "@/routes/financial-flows";
 import { Button } from "@/components/ui/button";
-
-
 import financialLaunchesRoutes from '@/routes/financial-launches';
+import { dashboard } from "@/routes";
 
-const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+
+
+const breadcrumbs = (financial_flow: number) => [
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunchesRoutes.index().url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow }).url },
 ];
 
 
 export default function FinancialLaunchesIndex({ financialLaunches, financial_flow_id }: { financialLaunches?: Paginated<FinancialLaunch>, financial_flow_id?: number }) {
-    const createHref = financial_flow_id ? `${financialLaunchesRoutes.create().url}?financial_flow_id=${encodeURIComponent(String(financial_flow_id))}` : financialLaunchesRoutes.create().url;
+    const createHref = financial_flow_id ? `${financialLaunchesRoutes.create({ financial_flow: financial_flow_id }).url}` : "#";
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_flow_id ?? 0)}>
 
             <Head title={trans("Financial Launches")} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-1 md:p-4">

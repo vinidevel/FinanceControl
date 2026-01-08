@@ -11,42 +11,41 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CircleAlert } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import RevenueController from "@/actions/App/Http/Controllers/RevenueController";
+import { dashboard } from "@/routes";
+import financialLaunches from "@/routes/financial-launches";
 
-
-
-
-
-interface Revenue {
-    id: number;
-    description: string;
-    value: number;
-    revenue_type_id: number;
-    financial_launch_id: number;
-
-}
 
 interface Props {
     revenue: Revenue;
     revenue_types?: { id: number; name: string }[];
+    financial_flow_id: number;
+    financial_launch_id: number;
 }
 
 
+const breadcrumbs = ({
+    revenue,
+    financial_flow_id,
+    financial_launch_id
+}: { revenue: Revenue; financial_flow_id: number; financial_launch_id: number }) => [
+    { title: "Dashboard", href:  dashboard.url()},
+    { title: "Financial Flows", href: financialFlows.index().url },
+    { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
+    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
+    { title: "Edit Revenue", href: revenueRoutes.edit({
+        financial_flow: financial_flow_id,
+        financial_launch: financial_launch_id,
+        revenue: revenue.id
+    }).url },
+];
 
-export default function Edit({ revenue, revenue_types }: Props) {
+export default function Edit({ revenue, revenue_types, financial_flow_id, financial_launch_id }: Props) {
 
-    const breadcrumbs = [
-        { title: "Dashboard", href: "/" },
-        { title: "Financial Flows", href: financialFlows.index().url },
-        { title: "Financial Launches", href: "/financial-launches" },
-        { title: "Revenues", href: revenueRoutes.index().url },
-        { title: "Edit Revenue", href: revenueRoutes.edit(revenue.id).url },
-    ];
 
     const { data, setData, put, processing, errors } = useForm({
         description: revenue.description ?? '',
         value: revenue.value ?? 0,
         revenue_type_id: revenue.revenue_type_id ?? 0,
-        financial_launch_id: revenue.financial_launch_id ?? null,
 
     })
 
@@ -54,14 +53,22 @@ export default function Edit({ revenue, revenue_types }: Props) {
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-             put(RevenueController.update.url(revenue.id));
+             put(RevenueController.update.url({
+            financial_flow: financial_flow_id!,
+            financial_launch: financial_launch_id!,
+            revenue: revenue.id
+             }));
         toast.success(trans("Revenue updated successfully."));
-        
+
 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs({
+            revenue,
+            financial_flow_id: financial_flow_id!,
+            financial_launch_id: financial_launch_id!
+        })}>
             <Head title={trans("Edit revenue")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Edit revenue")} description={trans("Edit an existing revenue record")} />
@@ -126,7 +133,7 @@ export default function Edit({ revenue, revenue_types }: Props) {
                                         className="block flex-1 border rounded px-3 py-2 "
                                     >
                                         <option value="0">{trans("Select Revenue Type")}</option>
-                                        {(revenue_types ?? []).map((rt: any) => (
+                                        {(revenue_types ?? []).map((rt: RevenueType) => (
                                             <option className="text-black" key={rt.id} value={rt.id}>{rt.name}</option>
                                         ))}
                                     </select>

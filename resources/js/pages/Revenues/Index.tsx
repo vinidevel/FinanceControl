@@ -9,20 +9,23 @@ import revenueRoutes from "@/routes/revenues";
 
 
 import financialLaunchesRoutes from '@/routes/financial-launches';
+import { dashboard } from "@/routes";
 
-const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+
+const breadcrumbs = (financial_launch_id: number) => [
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunchesRoutes.index().url },
-    { title: "Revenues", href: revenueRoutes.index().url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow: financial_launch_id }).url },
+    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url },
 ];
 
 
-export default function RevenuesIndex({ revenues, financial_launch_id }: { revenues?: Paginated<Revenue>, financial_launch_id?: number }) {
-    const createHref = financial_launch_id ? `${revenueRoutes.create().url}?financial_launch_id=${encodeURIComponent(String(financial_launch_id))}` : revenueRoutes.create().url;
+export default function RevenuesIndex({ revenues, financial_launch_id }: { revenues?: Paginated<Revenue>, financial_launch_id: number }) {
+
+    const createHref = revenueRoutes.create({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url;
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!)}>
 
             <Head title={trans("Revenues")} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-1 md:p-4">
@@ -36,7 +39,10 @@ export default function RevenuesIndex({ revenues, financial_launch_id }: { reven
                 <h1>{trans("Revenues")}</h1>
 
                 <DataTable columns={columns}
-                    data={revenues?.data ?? []}
+                    data={revenues?.data.map((item) => ({
+                        ...item,
+                        financial_flow_id: financial_launch_id
+                    })) ?? []}
                     paginated={revenues}
                 />
             </div>

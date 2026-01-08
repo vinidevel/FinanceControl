@@ -30,12 +30,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Start Financial Flows Routes
     Route::resource('financial-flows', \App\Http\Controllers\FinancialFlowController::class);
-    Route::resource('financial-launches', \App\Http\Controllers\FinancialLaunchController::class);
-    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
-    Route::resource('revenues', \App\Http\Controllers\RevenueController::class);
-    Route::resource('expense-types', \App\Http\Controllers\ExpenseTypeController::class);
-    Route::resource('revenue-types', \App\Http\Controllers\RevenueTypeController::class);
-    Route::resource('payment-methods', \App\Http\Controllers\PaymentMethodController::class);
+
+    Route::group(['prefix' => 'financial-flows/{financial_flow}'], function () {
+        Route::resource('financial-launches', \App\Http\Controllers\FinancialLaunchController::class);
+
+        Route::group(['prefix' => 'financial-launches/{financial_launch}'], function () {
+            Route::resource('revenues', \App\Http\Controllers\RevenueController::class);
+        });
+        Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+        Route::resource('expense-types', \App\Http\Controllers\ExpenseTypeController::class);
+        Route::resource('revenue-types', \App\Http\Controllers\RevenueTypeController::class);
+        Route::resource('payment-methods', \App\Http\Controllers\PaymentMethodController::class);
+    });
 
     Route::post('/tokens/create', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'generateToken'])->name('tokens.create');
     Route::delete('/tokens/{tokenId}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'revokeToken'])->name('tokens.revoke');

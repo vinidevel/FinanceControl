@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FinancialFlow;
+use App\Models\FinancialLaunch;
 use App\Models\Revenue;
 use App\Models\RevenueType;
 use Illuminate\Http\Request;
@@ -11,14 +13,15 @@ class RevenueController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
-         $perPage = $request->input('perPage', 20);
-        $id = $request->input('financial_launch_id');
+
+        $perPage = $request->input('perPage', 20);
+
 
         $query = Revenue::query();
-        if ($id) {
-            $query->where('financial_launch_id', $id);
+        if ($financialLaunch) {
+            $query->where('financial_launch_id', $financialLaunch->id);
         }
 
         $revenues = $query->orderBy('id', 'desc')
@@ -27,38 +30,41 @@ class RevenueController extends Controller
 
         return inertia('Revenues/Index', [
             'revenues' => $revenues,
-            'financial_launch_id' => $id,
+            'financial_launch_id' => $financialLaunch ? $financialLaunch->id : null,
+            'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
         $revenueTypes = RevenueType::orderBy('name')->get();
 
         return inertia('Revenues/Create', [
             'revenue_types' => $revenueTypes,
-            'financial_launch_id' => $request->input('financial_launch_id'),
+            'financial_launch_id' => $financialLaunch->id,
+            'financial_flow_id' => $financialFlow->id,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
-        $data = $request->validate([
-            'financial_launch_id' => 'required|exists:financial_launches,id',
-            'revenue_type_id' => 'required|exists:revenue_types,id',
-            'value' => 'required|numeric',
-            'description' => 'nullable|string',
-        ]);
+        $request->validate([
+             'revenue_type_id' => 'required|exists:revenue_types,id',
+             'value' => 'required|numeric',
+             'description' => 'nullable|string',
+         ]);
+        $data = $request->only(['revenue_type_id', 'value', 'description']);
+        $data['financial_launch_id'] = $financialLaunch->id;
 
         Revenue::create($data);
 
-        return redirect()->route('revenues.index', ['financial_launch_id' => $data['financial_launch_id']])->with('success', trans('Revenue created successfully.'));
+        return redirect()->route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Revenue created successfully.'));
     }
 
     /**
@@ -72,41 +78,44 @@ class RevenueController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Revenue $revenue)
+    public function edit(FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Revenue $revenue)
     {
         $revenueTypes = RevenueType::orderBy('name')->get();
 
         return inertia('Revenues/Edit', [
             'revenue' => $revenue,
             'revenue_types' => $revenueTypes,
+            'financial_launch_id' => $financialLaunch->id,
+            'financial_flow_id' => $financialFlow->id,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Revenue $revenue)
+    public function update(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Revenue $revenue)
     {
-        $data = $request->validate([
-            'financial_launch_id' => 'required|exists:financial_launches,id',
+        $request->validate([
             'revenue_type_id' => 'required|exists:revenue_types,id',
             'value' => 'required|numeric',
             'description' => 'nullable|string',
         ]);
+        $data = $request->only(['revenue_type_id', 'value', 'description']);
+        $data['financial_launch_id'] = $financialLaunch->id;
 
         $revenue->update($data);
 
-        return redirect()->route('revenues.index', ['financial_launch_id' => $data['financial_launch_id']])->with('success', trans('Revenue updated successfully.'));
+        return redirect()->route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Revenue updated successfully.'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Revenue $revenue)
+    public function destroy(FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Revenue $revenue)
     {
         $financialLaunchId = $revenue->financial_launch_id;
         $revenue->delete();
 
-        return redirect()->route('revenues.index', ['financial_launch_id' => $financialLaunchId])->with('success', trans('Revenue deleted successfully.'));
+        return redirect()->route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Revenue deleted successfully.'));
     }
 }

@@ -17,10 +17,11 @@ import { fetchWithCsrf } from "@/utils/fetch";
 
 import { toast } from "sonner";
 import purchases from "@/routes/purchases";
+import { dashboard } from "@/routes";
 
 
 const breadcrumbs = [
-    { title: "Dashboard", href: "/" },
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Purchases", href: "/purchases" },
     { title: "Add Purchase", href: "/purchases/create" },
 ];
