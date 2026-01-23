@@ -22,13 +22,29 @@ class FinancialLaunchController extends Controller
             $query->where('financial_flow_id', $financialFlow->id);
         }
 
+
+
         $financialLaunches = $query->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
+            foreach ($financialLaunches as $launch) {
+                $totalRevenues = $launch->revenues()->sum('value');
+                $totalExpenses = $launch->expenses()->sum('value');
+                $net_worth = $totalRevenues - $totalExpenses;
+                $launch->totalRevenues = $totalRevenues;
+                $launch->totalExpenses = $totalExpenses;
+                $launch->net_worth = $net_worth;
+            }
+
+       
+
         return inertia('FinancialLanches/Index', [
             'financialLaunches' => $financialLaunches,
             'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
+            'totalRevenues' => $financialLaunches->sum('totalRevenues'),
+            'totalExpenses' => $financialLaunches->sum('totalExpenses'),
+            'netWorth' => $financialLaunches->sum('net_worth'),
         ]);
     }
 

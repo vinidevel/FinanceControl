@@ -55,14 +55,18 @@ class RevenueController extends Controller
     public function store(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
         $request->validate([
-             'revenue_type_id' => 'required|exists:revenue_types,id',
+             'revenueType' => 'required|exists:revenue_types,id',
              'value' => 'required|numeric',
              'description' => 'nullable|string',
          ]);
-        $data = $request->only(['revenue_type_id', 'value', 'description']);
+        //  dd($request->all());
+        $data = $request->only(['value', 'description']);
         $data['financial_launch_id'] = $financialLaunch->id;
 
-        Revenue::create($data);
+        $data['revenue_type_id'] = $request->revenueType;
+        $data =  Revenue::create($data);
+
+    
 
         return redirect()->route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Revenue created successfully.'));
     }

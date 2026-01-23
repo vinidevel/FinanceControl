@@ -18,9 +18,17 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+     public function fetch_create(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255|unique:payment_methods,name',
+        ]);
+
+        $payment_methods = \App\Models\PaymentMethod::create([
+            'name' => $request->name
+        ]);
+
+        return response()->json($payment_methods);
     }
 
     /**

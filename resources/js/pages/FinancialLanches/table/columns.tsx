@@ -8,6 +8,7 @@ import financialLaunches from '@/routes/financial-launches';
 import { PencilLine } from "lucide-react";
 import { DeleteDialog } from "@/components/delete-dialog";
 import revenues from "@/routes/revenues";
+import expenses from "@/routes/expenses";
 
 
 
@@ -15,30 +16,92 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
     {
         accessorKey: "month",
         header: () => <div className="text-start text-xs md:text-base">{trans("Month")}</div>,
-        cell: ({ row }) => {    const dateStr = row.getValue("month") as string | null;
-    if (!dateStr) return <div className="text-start text-xs md:text-base">—</div>;
+        cell: ({ row }) => {
+            const dateStr = row.getValue("month") as string | null;
+            if (!dateStr) return <div className="text-start text-xs md:text-base">—</div>;
 
-    // evita problemas de fuso se a string for 'YYYY-MM-DD'
-    const date = new Date(dateStr.length === 10 ? dateStr + "T00:00:00" : dateStr);
-    const monthName = date.toLocaleString("pt-BR", { month: "long" }); // "agosto"
-    return <div className="text-start text-xs md:text-base">{monthName.charAt(0).toUpperCase() + monthName.slice(1) }</div>;
+            // evita problemas de fuso se a string for 'YYYY-MM-DD'
+            const date = new Date(dateStr.length === 10 ? dateStr + "T00:00:00" : dateStr);
+            const monthName = date.toLocaleString("pt-BR", { month: "long" }); // "agosto"
+            return <div className="text-start text-xs md:text-base">{monthName.charAt(0).toUpperCase() + monthName.slice(1)}</div>;
         }
     },
 
 
-    {
-        accessorKey: "revenues",
-        header: () => <div className="text-center text-xs md:text-base">{trans("Revenues")}</div>,
-        size: 200,
-        cell: ({ row }) => {
-            return (
-                <div className="flex justify-center">
+{
+    accessorKey: "totalRevenues",
+    header: () => <div className="text-start text-xs md:text-base">{trans("Total Revenues")}</div>,
+    size: 200,
+    cell: ({ row }) => {
+        const totalRevenues = row.original.totalRevenues;
+        if (totalRevenues === null) return <div className="text-start text-xs md:text-base">—</div>;
+        
+  
+        const formatted = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(totalRevenues);
+        
+        return <div className="text-start text-xs md:text-base">{formatted}</div>;
+    }
+},
 
-                    <Button className="justify-center">
-                        <Link href={revenues.index({financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
+{
+    accessorKey: "totalExpenses",
+    header: () => <div className="text-start text-xs md:text-base">{trans("Total Expenses")}</div>,
+    size: 200,
+    cell: ({ row }) => {
+        const totalExpenses = row.original.totalExpenses;
+        if (totalExpenses === null) return <div className="text-start text-xs md:text-base">—</div>;
+        
+     
+        const formatted = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(totalExpenses);
+        
+        return <div className="text-start text-xs md:text-base">{formatted}</div>;
+    }
+},
+
+{
+    accessorKey: "net_worth",
+    header: () => <div className="text-start text-xs md:text-base">{trans("Net Worth")}</div>,
+    size: 200,
+    cell: ({ row }) => {
+        const net_worth = row.original.net_worth;
+        if (net_worth === null) return <div className="text-start text-xs md:text-base">—</div>;
+        
+       
+        const formatted = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(net_worth);
+        
+        return <div className="text-start text-xs md:text-base">{formatted}</div>;
+    }
+},
+
+
+    {
+        accessorKey: "Launches",
+        header: () => <p className="text-center">Launches</p>,
+        cell: ({ row }) => {
+           
+            return (
+                <div className="flex w-full justify-center gap-2">
+                     <Button className="justify-center">
+                        <Link href={revenues.index({ financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
                             Entradas
                         </Link>
                     </Button>
+
+                      <Button className="justify-center">
+                        <Link href={expenses.index({ financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
+                            Saídas
+                        </Link>
+                    </Button>
+
                 </div>
             )
         }

@@ -22,4 +22,6 @@ class Revenue extends Model
         return $this->belongsTo(RevenueType::class, 'revenue_type_id');
     }
 
+  
+
 }

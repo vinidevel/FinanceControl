@@ -16,4 +16,14 @@ class FinancialLaunch extends Model
      {
             return $this->belongsTo(FinancialFlow::class, 'financial_flow_id');
      }
+
+     public function revenues()
+     {
+            return $this->hasMany(Revenue::class, 'financial_launch_id');
+     }
+
+     public function expenses()
+     {
+            return $this->hasMany(Expense::class, 'financial_launch_id');
+     }    
 }

@@ -18,9 +18,17 @@ class RevenueTypeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+  public function fetch_create(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255|unique:revenue_types,name',
+        ]);
+
+        $revenue_types = \App\Models\RevenueType::create([
+            'name' => $request->name
+        ]);
+
+        return response()->json($revenue_types);
     }
 
     /**

@@ -6,15 +6,15 @@ import { Head, useForm } from "@inertiajs/react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import financialFlows from "@/routes/financial-flows";
-import revenueRoutes from "@/routes/revenues";
+import expensesRoutes from "@/routes/expenses";
 import { Button } from "@/components/ui/button";
 import financialLaunches from "@/routes/financial-launches";
 import { dashboard } from "@/routes";
-
 import { fetchWithCsrf } from "@/utils/fetch";
+import expense_types from "@/routes/expense_types";
 import { ComboboxDemo } from "@/components/global/FindOrCreate";
 import { useState } from "react";
-import revenue_types from "@/routes/revenue_types";
+import payment_methods from "@/routes/payment_methods";
 
 
 
@@ -22,39 +22,45 @@ const breadcrumbs = ({ financial_flow_id, financial_launch_id }: { financial_flo
     { title: "Dashboard", href: dashboard.url() },
     { title: "Financial Flows", href: financialFlows.index().url },
     { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
-    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
-    { title: "Add Revenue", href: "/revenues/create" },
+    { title: "Expenses", href: expensesRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
+    { title: "Add Expense", href: "/expenses/create" },
 ];
 
-type RevenuesItem = {
+type ExpensesItem = {
     id: string
     description: string;
     value: number;
-    revenue_type_id: number;
+    expense_type_id: number;
     financial_launch_id: number;
+    payment_method_id: number;
 };
 
 
-function handleCreateRevenueType(value: string, financial_flow_id: string): Promise<{ data: RevenueType }> {
-    return fetchWithCsrf().post(revenue_types.create.fetch({financial_flow: financial_flow_id}).url, { name: value })
+function handleCreateExpenseType(value: string, financial_flow_id: string): Promise<{ data: ExpenseType }> {
+    return fetchWithCsrf().post(expense_types.create.fetch({ financial_flow: financial_flow_id }).url, { name: value })
+}
+
+function handleCreatePaymentMethod(value: string, financial_flow_id: string): Promise<{ data: PaymentMethod }> {
+    return fetchWithCsrf().post(payment_methods.create.fetch({ financial_flow: financial_flow_id }).url, { name: value })
 }
 
 
-
-export default function Create({ financial_launch_id, revenue_types, financial_flow_id }: { financial_launch_id?: number, revenue_types?: RevenueType[], financial_flow_id?: number }) {
+export default function Create({ financial_launch_id, expense_types, pay_methods, financial_flow_id }: { financial_launch_id?: number, expense_types?: ExpenseType[], pay_methods?: PaymentMethod[], financial_flow_id?: number }) {
     const { data, setData, post } = useForm({
         description: '',
         value: 0,
-        revenueType: '',
-        items: [] as RevenuesItem[],
+        expenseType: '',
+        paymentMethod: '',
+        items: [] as ExpensesItem[],
     })
 
-    const [revenueTypesState, setRevenueTypesState] = useState<RevenueType[]>(revenue_types ?? []);
+       const [expenseTypesState, setExpenseTypesState] = useState<ExpenseType[]>(expense_types ?? []);
+       const [paymentMethodsState, setPaymentMethodsState] = useState<PaymentMethod[]>(pay_methods ?? []);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        post(revenueRoutes.store.url({
+        post(expensesRoutes.store.url({
             financial_flow: financial_flow_id!,
             financial_launch: financial_launch_id!
         }), {
@@ -63,7 +69,7 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
                 toast.error(trans("An error occurred while creating the revenue."));
             },
             onSuccess: () => {
-                toast.success(trans("revenue created successfully."));
+                toast.success(trans("expense created successfully."));
             }
         })
     }
@@ -73,9 +79,9 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
             financial_flow_id: financial_launch_id!,
             financial_launch_id: financial_launch_id!
         })}>
-            <Head title={trans("Add revenue")} />
+            <Head title={trans("Add expense")} />
             <div className="px-4 py-6">
-                <Heading title={trans("Add revenue")} description={trans("Create a new revenue record")} />
+                <Heading title={trans("Add expense")} description={trans("Create a new expense record")} />
                 <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-6">
@@ -109,27 +115,43 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
 
                                 </div>
 
-
-
                                 <div className="grid gap-2">
-                                    <label className="font-medium">{trans("Revenue Type")}</label>
+                                    <label className="font-medium">{trans("Expense Type")}</label>
                                     <ComboboxDemo
-                                        placeholder={trans("Select a Revenue Type")}
-                                        items={[...revenueTypesState.map(revenue_types => ({ value: revenue_types.id.toString(), label: revenue_types.name }))]}
-                                        label={data.revenueType}
-                                        value={data.revenueType}
-                                        setValue={(value) => setData(prev => ({ ...prev, revenueType: value }))}
+                                        placeholder={trans("Select a Expense Type")}
+                                        items={[...expenseTypesState.map(expense_types => ({ value: expense_types.id.toString(), label: expense_types.name }))]}
+                                        label={data.expenseType}
+                                        value={data.expenseType}
+                                        setValue={(value) => setData(prev => ({ ...prev, expenseType: value }))}
                                         handleCreate={(value) => {
-                                            handleCreateRevenueType(value, financial_flow_id!.toString()).then(response => {
-                                                setRevenueTypesState(prev => [...prev, response.data])
-                                                setData(prev => ({ ...prev, revenueType: `${response.data.id}` }))
-                                                toast.success(trans("Revenue Type created successfully"))
+                                            handleCreateExpenseType(value, financial_flow_id!.toString()).then(response => {
+                                                setExpenseTypesState(prev => [...prev, response.data])
+                                                setData(prev => ({ ...prev, expenseType: `${response.data.id}` }))
+                                                toast.success(trans("Expense Type created successfully"))
                                             }).catch((e) => {
                                                 toast.error(e.response.data.message)
                                             })
                                         }} />
                                 </div>
 
+                                <div className="grid gap-2">
+                                    <label className="font-medium">{trans("Payment Method")}</label>
+                                    <ComboboxDemo
+                                        placeholder={trans("Select a Payment Method")}
+                                        items={[...paymentMethodsState.map(payment_method => ({ value: payment_method.id.toString(), label: payment_method.name }))]}                                        
+                                        label={data.paymentMethod}
+                                        value={data.paymentMethod}
+                                        setValue={(value) => setData(prev => ({ ...prev, paymentMethod: value }))}
+                                        handleCreate={(value) => {
+                                            handleCreatePaymentMethod(value, financial_flow_id!.toString()).then(response => {
+                                                setPaymentMethodsState(prev => [...prev, response.data])
+                                                setData(prev => ({ ...prev, paymentMethod: `${response.data.id}` }))
+                                                toast.success(trans("Payment Method created successfully"))
+                                            }).catch((e) => {
+                                                toast.error(e.response.data.message)
+                                            })
+                                           }} />
+                                </div>
 
                             </div>
 

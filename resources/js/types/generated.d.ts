@@ -103,6 +103,9 @@ declare namespace App.Models {
         financial_flow_id: number;
         created_at: string;
         updated_at: string;
+        totalRevenues?: number;
+        totalExpenses?: number;
+        net_worth?: number;
     };
 
     export type Revenue = {

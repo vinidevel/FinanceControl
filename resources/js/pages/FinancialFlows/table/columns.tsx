@@ -25,7 +25,7 @@ export const columns: ColumnDef<FinancialFlow>[] = [
 
     {
         accessorKey: "financialLaunches",
-        header: () => <div className="text-center text-xs md:text-base">{trans("Financial Lanches")}</div>,
+        header: () => <div className="text-center text-xs md:text-base">{trans("")}</div>,
         size: 200,
         cell: ({ row }) => {
             return (
