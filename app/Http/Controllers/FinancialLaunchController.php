@@ -122,9 +122,32 @@ class FinancialLaunchController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FinancialLaunch $financialLaunch)
+    public function destroy(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch)
     {
-        $financialLaunch->delete();
-        return response()->noContent(202);
+      try {
+
+            if ($financialLaunch->revenues()->exists() || $financialLaunch->expenses()->exists()) {
+                $message = 'Cannot delete Financial Launch with associated Revenues or Expenses.';
+                if ($request->wantsJson()) {
+                    return response()->json(['message' => $message], 409);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            $financialLaunch->delete();
+
+            $message = 'Financial Launch     deleted successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $message], 200);
+            }
+
+            return to_route('financial-launches.index', ['financial_flow_id' => $financialLaunch->financial_flow_id])->with('success', $message);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage() ?: 'Delete failed.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $msg], 500);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
     }
 }

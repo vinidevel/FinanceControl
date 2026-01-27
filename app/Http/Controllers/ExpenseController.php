@@ -87,24 +87,62 @@ class ExpenseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Expense $expense)
+    public function edit(FinancialFlow $financialFlow, FinancialLaunch $financialLaunch,Expense $expense)
     {
-        //
+        $expenseTypes = ExpenseType::orderBy('name')->get();
+        $paymentMethods = PaymentMethod::orderBy('name')->get();
+
+        return inertia('Expenses/Edit', [
+            'expense' => $expense->load(['expenseType', 'paymentMethod']),
+            'expense_types' => $expenseTypes,
+            'payment_methods' => $paymentMethods,
+            'financial_launch_id' => $financialLaunch->id,
+            'financial_flow_id' => $financialFlow->id,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Expense $expense)
+    public function update(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Expense $expense)
     {
-        //
+     
+        $request->validate([
+            'expense_type_id' => 'required|exists:expense_types,id',
+            'value' => 'required|numeric',
+            'description' => 'nullable|string',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+        ]);
+
+        $data = $request->only(['expense_type_id', 'value', 'description', 'payment_method_id']);
+
+        $expense->update($data);
+
+        return redirect()->route('expenses.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Expense updated successfully.'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Expense $expense)
+    public function destroy(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Expense $expense)
     {
-        //
+
+        try {
+
+            $expense->delete();
+
+            $message = 'Expense deleted successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $message], 200);
+            }
+
+            return to_route('expenses.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', $message);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage() ?: 'Delete failed.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $msg], 500);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
     }
 }

@@ -13,21 +13,20 @@ import { dashboard } from "@/routes";
 
 
 
-const breadcrumbs = (financial_launch_id: number) => [
+const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
     { title: "Dashboard", href: dashboard.url() },
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow: financial_launch_id }).url },
-    { title: "Expenses", href: expensesRoutes.index({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow:  financial_flow_id  }).url },
+    { title: "Expenses", href: expensesRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
 ];
 
 
-export default function ExpensesIndex({ expenses, financial_launch_id }: { expenses?: Paginated<Expense>, financial_launch_id: number }) {
+export default function ExpensesIndex({ expenses, financial_launch_id, financial_flow_id }: { expenses?: Paginated<Expense>, financial_launch_id: number, financial_flow_id: number }) {
 
-    const createHref = expensesRoutes.create({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url;
+    const createHref = expensesRoutes.create({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url;
     console.log(expenses);
     return (
-        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!)}>
-
+        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!, financial_flow_id!)}>
             <Head title={trans("expenses")} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-1 md:p-4">
                 <aside className="flex items-center justify-end">
@@ -44,7 +43,7 @@ export default function ExpensesIndex({ expenses, financial_launch_id }: { expen
                         ...ex,
                         paymentMethod: ex.payment_method.name,
                         expenseType: ex.expense_type.name,
-                        financial_flow_id: financial_launch_id
+                        financial_flow_id: financial_flow_id
                     })) ?? []}
                     paginated={expenses}
                 />

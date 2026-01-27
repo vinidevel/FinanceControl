@@ -12,20 +12,20 @@ import financialLaunchesRoutes from '@/routes/financial-launches';
 import { dashboard } from "@/routes";
 
 
-const breadcrumbs = (financial_launch_id: number) => [
-    { title: "Dashboard", href:  dashboard.url()},
+const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
+    { title: "Dashboard", href: dashboard.url() },
     { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow: financial_launch_id }).url },
-    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url },
+    { title: "Financial Launches", href: financialLaunchesRoutes.index({ financial_flow: financial_flow_id }).url },
+    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
 ];
 
 
-export default function RevenuesIndex({ revenues, financial_launch_id }: { revenues?: Paginated<Revenue>, financial_launch_id: number }) {
+export default function RevenuesIndex({ revenues, financial_launch_id, financial_flow_id }: { revenues?: Paginated<Revenue>, financial_launch_id: number, financial_flow_id: number }) {
 
-    const createHref = revenueRoutes.create({ financial_flow: financial_launch_id, financial_launch: financial_launch_id }).url;
+    const createHref = revenueRoutes.create({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url;
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!)}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!, financial_flow_id!)}>
 
             <Head title={trans("Revenues")} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-1 md:p-4">
@@ -41,7 +41,7 @@ export default function RevenuesIndex({ revenues, financial_launch_id }: { reven
                 <DataTable columns={columns}
                     data={revenues?.data.map((item) => ({
                         ...item,
-                        financial_flow_id: financial_launch_id
+                        financial_flow_id: financial_flow_id
                     })) ?? []}
                     paginated={revenues}
                 />

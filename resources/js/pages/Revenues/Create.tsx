@@ -18,13 +18,16 @@ import revenue_types from "@/routes/revenue_types";
 
 
 
-const breadcrumbs = ({ financial_flow_id, financial_launch_id }: { financial_flow_id: number, financial_launch_id: number }) => [
-    { title: "Dashboard", href: dashboard.url() },
+
+
+const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
+    { title: "Dashboard", href:  dashboard.url()},
     { title: "Financial Flows", href: financialFlows.index().url },
     { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
     { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
     { title: "Add Revenue", href: "/revenues/create" },
 ];
+
 
 type RevenuesItem = {
     id: string
@@ -69,10 +72,7 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs({
-            financial_flow_id: financial_launch_id!,
-            financial_launch_id: financial_launch_id!
-        })}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!, financial_flow_id!)}>
             <Head title={trans("Add revenue")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Add revenue")} description={trans("Create a new revenue record")} />

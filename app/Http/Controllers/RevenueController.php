@@ -115,11 +115,26 @@ class RevenueController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Revenue $revenue)
+    public function destroy(Request $request, FinancialFlow $financialFlow, FinancialLaunch $financialLaunch, Revenue $revenue)
     {
-        $financialLaunchId = $revenue->financial_launch_id;
-        $revenue->delete();
 
-        return redirect()->route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', trans('Revenue deleted successfully.'));
+      try {
+
+            $revenue->delete();
+
+            $message = 'Revenue deleted successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $message], 200);
+            }
+
+            return to_route('revenues.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', $message);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage() ?: 'Delete failed.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $msg], 500);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
     }
+
 }

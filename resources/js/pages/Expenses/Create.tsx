@@ -18,13 +18,15 @@ import payment_methods from "@/routes/payment_methods";
 
 
 
-const breadcrumbs = ({ financial_flow_id, financial_launch_id }: { financial_flow_id: number, financial_launch_id: number }) => [
+const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
     { title: "Dashboard", href: dashboard.url() },
     { title: "Financial Flows", href: financialFlows.index().url },
     { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
     { title: "Expenses", href: expensesRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
     { title: "Add Expense", href: "/expenses/create" },
 ];
+
+
 
 type ExpensesItem = {
     id: string
@@ -75,10 +77,7 @@ export default function Create({ financial_launch_id, expense_types, pay_methods
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs({
-            financial_flow_id: financial_launch_id!,
-            financial_launch_id: financial_launch_id!
-        })}>
+        <AppLayout  breadcrumbs={breadcrumbs(financial_launch_id!, financial_flow_id!)}>
             <Head title={trans("Add expense")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Add expense")} description={trans("Create a new expense record")} />

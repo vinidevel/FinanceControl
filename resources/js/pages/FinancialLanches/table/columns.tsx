@@ -40,7 +40,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         const formatted = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
-        }).format(totalRevenues);
+        }).format(totalRevenues??0);
         
         return <div className="text-start text-xs md:text-base">{formatted}</div>;
     }
@@ -58,7 +58,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         const formatted = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
-        }).format(totalExpenses);
+        }).format(totalExpenses??0);
         
         return <div className="text-start text-xs md:text-base">{formatted}</div>;
     }
@@ -76,7 +76,7 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         const formatted = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
-        }).format(net_worth);
+        }).format(net_worth??0);
         
         return <div className="text-start text-xs md:text-base">{formatted}</div>;
     }
@@ -133,10 +133,10 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
                         </Link>
                     </Button>
                     <DeleteDialog
-                        url={financialLaunches.destroy({
+                          url={financialLaunches.destroy({
                             financial_flow: row.original.financial_flow_id,
                             financial_launch: row.original.id
-                        }).url}
+                          }).url}
                         text={trans("Are you sure you want to delete this Financial Launch?")}
                         successMessage={trans("Financial Launch deleted successfully.")}
                     />
