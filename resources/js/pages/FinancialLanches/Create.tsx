@@ -9,6 +9,9 @@ import financialLaunches from "@/routes/financial-launches";
 import financialFlows from "@/routes/financial-flows";
 import { Button } from "@/components/ui/button";
 import { dashboard } from "@/routes";
+import { Popover} from "node_modules/@headlessui/react/dist/components/popover/popover";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar, CalendarIcon } from "lucide-react";
 
 
 
@@ -22,6 +25,7 @@ const breadcrumbs = (financial_flow_id: number) => [
 type FinancialLaunchesItem = {
     id: string
     month: string;
+    card_expiration_date: string;
     financial_flow_id: number;
 };
 
@@ -31,6 +35,7 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
 
     const { data, setData, post } = useForm({
         month: new Date().toISOString().slice(0, 7),
+        card_expiration_date: new Date(),
         items: [] as FinancialLaunchesItem[],
     })
 
@@ -66,6 +71,34 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
 
                                 </div>
                             </div>
+
+                             <div className="grid gap-2">
+                                    <label htmlFor="card_expiration_date" className="font-medium">{trans("Date")}</label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                data-empty={!data.card_expiration_date}
+                                                className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+                                            >
+                                                <CalendarIcon />
+                                                {data.card_expiration_date ? format(data.card_expiration_date, "PPP") : <span>{trans("Pick a date")}</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[320px] p-0">
+                                            <Calendar
+                                                className="w-full"
+                                                mode="single"
+                                                selected={data.card_expiration_date}
+                                                onSelect={date => setData(prev => ({ ...prev, card_expiration_date: date || new Date() }))}
+                                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                  
+                                                
+                                                captionLayout="dropdown"
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
 
 
                             <div className="flex items-center justify-center md:justify-end gap-4">

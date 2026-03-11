@@ -31,10 +31,11 @@ class FinancialLaunchController extends Controller
             foreach ($financialLaunches as $launch) {
                 $totalRevenues = $launch->revenues()->sum('value');
                 $totalExpenses = $launch->expenses()->sum('value');
-                $net_worth = $totalRevenues - $totalExpenses;
+                $monthNet = $totalRevenues - $totalExpenses; // saldo apenas do mês
                 $launch->totalRevenues = $totalRevenues;
                 $launch->totalExpenses = $totalExpenses;
-                $launch->net_worth = $net_worth;
+                // preserve DB `net_worth` (saldo acumulado) and expose month difference separately
+                $launch->month_net = $monthNet;
             }
 
        
@@ -44,7 +45,7 @@ class FinancialLaunchController extends Controller
             'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
             'totalRevenues' => $financialLaunches->sum('totalRevenues'),
             'totalExpenses' => $financialLaunches->sum('totalExpenses'),
-            'netWorth' => $financialLaunches->sum('net_worth'),
+            'netWorth' => $financialLaunches->sum('net_worth'), // soma do campo armazenado no DB (saldo acumulado)
         ]);
     }
 
@@ -73,6 +74,7 @@ class FinancialLaunchController extends Controller
 
         FinancialLaunch::create([
             'month' => $month,
+            'card_expiration_date' => $request->card_expiration_date,
             'financial_flow_id' => $financialFlow->id,
         ]);
 

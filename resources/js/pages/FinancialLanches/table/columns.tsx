@@ -27,76 +27,91 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
         }
     },
 
+    {
+        accessorKey: "net_worth",
+        header: () => <div className="text-start text-xs md:text-base">{trans("Saldo Conta Corrente")}</div>,
+        cell: ({ row }) => {
+            const net_worth = row.getValue("net_worth") as string | null;
+            if (!net_worth) return <div className="text-start text-xs md:text-base">—</div>;
 
-{
-    accessorKey: "totalRevenues",
-    header: () => <div className="text-start text-xs md:text-base">{trans("Total Revenues")}</div>,
-    size: 200,
-    cell: ({ row }) => {
-        const totalRevenues = row.original.totalRevenues;
-        if (totalRevenues === null) return <div className="text-start text-xs md:text-base">—</div>;
-        
-  
-        const formatted = new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(totalRevenues??0);
-        
-        return <div className="text-start text-xs md:text-base">{formatted}</div>;
-    }
-},
+            const formatted = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(Number(net_worth));
 
-{
-    accessorKey: "totalExpenses",
-    header: () => <div className="text-start text-xs md:text-base">{trans("Total Expenses")}</div>,
-    size: 200,
-    cell: ({ row }) => {
-        const totalExpenses = row.original.totalExpenses;
-        if (totalExpenses === null) return <div className="text-start text-xs md:text-base">—</div>;
-        
-     
-        const formatted = new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(totalExpenses??0);
-        
-        return <div className="text-start text-xs md:text-base">{formatted}</div>;
-    }
-},
+            return <div className="text-start text-xs md:text-base">{formatted}</div>;
+        }
+    },
 
-{
-    accessorKey: "net_worth",
-    header: () => <div className="text-start text-xs md:text-base">{trans("Net Worth")}</div>,
-    size: 200,
-    cell: ({ row }) => {
-        const net_worth = row.original.net_worth;
-        if (net_worth === null) return <div className="text-start text-xs md:text-base">—</div>;
-        
-       
-        const formatted = new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(net_worth??0);
-        
-        return <div className="text-start text-xs md:text-base">{formatted}</div>;
-    }
-},
+
+    {
+        accessorKey: "totalRevenues",
+        header: () => <div className="text-start text-xs md:text-base">{trans("Total Revenues")}</div>,
+        size: 200,
+        cell: ({ row }) => {
+            const totalRevenues = row.original.totalRevenues;
+            if (totalRevenues === null) return <div className="text-start text-xs md:text-base">—</div>;
+
+
+            const formatted = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(totalRevenues ?? 0);
+
+            return <div className="text-start text-xs md:text-base">{formatted}</div>;
+        }
+    },
+
+    {
+        accessorKey: "totalExpenses",
+        header: () => <div className="text-start text-xs md:text-base">{trans("Total Expenses")}</div>,
+        size: 200,
+        cell: ({ row }) => {
+            const totalExpenses = row.original.totalExpenses;
+            if (totalExpenses === null) return <div className="text-start text-xs md:text-base">—</div>;
+
+
+            const formatted = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(totalExpenses ?? 0);
+
+            return <div className="text-start text-xs md:text-base">{formatted}</div>;
+        }
+    },
+
+    {
+        accessorKey: "month_net",
+        header: () => <div className="text-start text-xs md:text-base">{trans("Net Worth (Revenues - Expenses)")}</div>,
+        size: 200,
+        cell: ({ row }) => {
+            const monthNet = row.original.month_net;
+            if (monthNet === null || monthNet === undefined) return <div className="text-start text-xs md:text-base">—</div>;
+
+            const formatted = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(monthNet ?? 0);
+
+            return <div className="text-start text-xs md:text-base">{formatted}</div>;
+        }
+    },
 
 
     {
         accessorKey: "Launches",
         header: () => <p className="text-center">Launches</p>,
         cell: ({ row }) => {
-           
+
             return (
                 <div className="flex w-full justify-center gap-2">
-                     <Button className="justify-center">
+                    <Button className="justify-center">
                         <Link href={revenues.index({ financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
                             Entradas
                         </Link>
                     </Button>
 
-                      <Button className="justify-center">
+                    <Button className="justify-center">
                         <Link href={expenses.index({ financial_flow: row.original.financial_flow_id, financial_launch: row.original.id }).url} className="flex justify-center">
                             Saídas
                         </Link>
@@ -133,10 +148,10 @@ export const columns: ColumnDef<FinancialLaunch>[] = [
                         </Link>
                     </Button>
                     <DeleteDialog
-                          url={financialLaunches.destroy({
+                        url={financialLaunches.destroy({
                             financial_flow: row.original.financial_flow_id,
                             financial_launch: row.original.id
-                          }).url}
+                        }).url}
                         text={trans("Are you sure you want to delete this Financial Launch?")}
                         successMessage={trans("Financial Launch deleted successfully.")}
                     />
