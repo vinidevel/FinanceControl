@@ -66,15 +66,21 @@ class FinancialLaunchController extends Controller
     public function store(Request $request, FinancialFlow $financialFlow)
     {
         $request->validate([
-            'month' => 'required|date_format:Y-m'
+            'month' => 'required|date_format:Y-m',
+            'card_expiration_date' => 'nullable|date',
         ]);
+
+   
 
         // Ensure the stored date has day = 1 (Y-m-01)
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
+        $cardExpirationDate = $request->filled('card_expiration_date')
+            ? Carbon::parse($request->card_expiration_date)->toDateString()
+            : null;
 
         FinancialLaunch::create([
             'month' => $month,
-            'card_expiration_date' => $request->card_expiration_date,
+            'card_expiration_date' => $cardExpirationDate,
             'financial_flow_id' => $financialFlow->id,
         ]);
 
@@ -109,12 +115,17 @@ class FinancialLaunchController extends Controller
     {
         $request->validate([
             'month' => 'required|date_format:Y-m',
+            'card_expiration_date' => 'nullable|date',
         ]);
 
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
+        $cardExpirationDate = $request->filled('card_expiration_date')
+            ? Carbon::parse($request->card_expiration_date)->toDateString()
+            : null;
 
         $financialLaunch->update([
             'month' => $month,
+            'card_expiration_date' => $cardExpirationDate,
         ]);
 
         return to_route('financial-launches.index', ['financial_flow_id' => $financialLaunch->financial_flow_id])->with('success', 'Financial Launch updated successfully.');

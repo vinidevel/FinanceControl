@@ -22,10 +22,11 @@ import revenue_types from "@/routes/revenue_types";
 
 const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
     { title: "Dashboard", href:  dashboard.url()},
-    { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
-    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
-    { title: "Add Revenue", href: "/revenues/create" },
+    { title: trans("Financial Flows"), href: financialFlows.index().url },
+    { title: trans("Financial Launches"), href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
+    { title: trans("Revenues"), href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
+    { title: trans("Add Revenue"), href: "/revenues/create" },
+
 ];
 
 

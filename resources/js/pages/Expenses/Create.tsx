@@ -35,6 +35,7 @@ type ExpensesItem = {
     expense_type_id: number;
     financial_launch_id: number;
     payment_method_id: number;
+    date_expense: string;
 };
 
 
@@ -53,6 +54,7 @@ export default function Create({ financial_launch_id, expense_types, pay_methods
         value: 0,
         expenseType: '',
         paymentMethod: '',
+        date_expense: '',
         items: [] as ExpensesItem[],
     })
 
@@ -100,7 +102,7 @@ export default function Create({ financial_launch_id, expense_types, pay_methods
                                 </div>
 
 
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 ">
                                     <label htmlFor="value" className="font-medium">{trans("value")}</label>
                                     <Input
                                         type="number"
@@ -151,6 +153,17 @@ export default function Create({ financial_launch_id, expense_types, pay_methods
                                             })
                                            }} />
                                 </div>
+
+                                <div className="grid gap-2">
+                                    <label className="font-medium">{trans("Date Expense")}</label>
+                                    <input
+                                        type="date"
+                                        className="block w-full border rounded px-3 py-2"
+                                        value={data.date_expense}
+                                        onChange={(e) => setData(prev => ({ ...prev, date_expense: e.target.value }))}
+                                    />
+                                </div>
+
 
                             </div>
 

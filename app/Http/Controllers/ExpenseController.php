@@ -63,10 +63,11 @@ class ExpenseController extends Controller
             'value' => 'required|numeric',
             'description' => 'nullable|string',
             'paymentMethod' => 'required|exists:payment_methods,id',
+            'date_expense' => 'required|date',
 
         ]);
         // dd($request->all());
-        $data = $request->only(['value', 'description', 'payment_method_id']);
+        $data = $request->only(['value', 'description', 'payment_method_id', 'date_expense']);
         $data['financial_launch_id'] = $financialLaunch->id;
         $data['expense_type_id'] = $request->expenseType;
         $data['payment_method_id'] = $request->paymentMethod;
@@ -112,9 +113,10 @@ class ExpenseController extends Controller
             'value' => 'required|numeric',
             'description' => 'nullable|string',
             'payment_method_id' => 'required|exists:payment_methods,id',
+            'date_expense' => 'required|date',
         ]);
 
-        $data = $request->only(['expense_type_id', 'value', 'description', 'payment_method_id']);
+        $data = $request->only(['expense_type_id', 'value', 'description', 'payment_method_id', 'date_expense']);
 
         $expense->update($data);
 
@@ -131,14 +133,14 @@ class ExpenseController extends Controller
 
             $expense->delete();
 
-            $message = 'Expense deleted successfully.';
+            $message = trans('Expense deleted successfully.');
             if ($request->wantsJson()) {
                 return response()->json(['message' => $message], 200);
             }
 
             return to_route('expenses.index', ['financial_flow' => $financialFlow->id, 'financial_launch' => $financialLaunch->id])->with('success', $message);
         } catch (\Throwable $e) {
-            $msg = $e->getMessage() ?: 'Delete failed.';
+            $msg = $e->getMessage() ?: trans('Delete failed.');
             if ($request->wantsJson()) {
                 return response()->json(['message' => $msg], 500);
             }

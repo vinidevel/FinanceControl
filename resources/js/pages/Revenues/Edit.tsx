@@ -147,7 +147,7 @@ export default function Edit({ revenue, revenue_types, financial_flow_id, financ
 
 
                             <Button className='mt-4' type="submit" disabled={processing}>
-                                {processing ? 'Saving...' : 'Update Revenue'}
+                                {processing ? trans("Saving...") : trans("Update Revenue")}
                             </Button>
                         </div>
                     </form>

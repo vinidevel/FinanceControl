@@ -13,6 +13,7 @@ class Expense extends Model
         'payment_method_id',
         'value',
         'description',
+        'date_expense',
     ];
     protected static function booted()
     {
