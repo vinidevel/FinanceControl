@@ -103,6 +103,10 @@ declare namespace App.Models {
         financial_flow_id: number;
         created_at: string;
         updated_at: string;
+        totalRevenues?: number;
+        totalExpenses?: number;
+        net_worth?: number;
+        card_expiration_date?: string | null;
     };
 
     export type Revenue = {
@@ -110,6 +114,19 @@ declare namespace App.Models {
         description: string | null;
         value: number | null;
         revenue_type_id: number | null;
+        financial_flow_id: number | null;
+        financial_launch_id: number | null;
+        created_at: string;
+        updated_at: string;
+    };
+
+    export type Expense = {
+        id: number;
+        description: string | null;
+        value: number | null;
+        expense_type_id: number | null;
+        payment_method_id: number | null;
+        date_expense: string | null;
         financial_flow_id: number | null;
         financial_launch_id: number | null;
         created_at: string;

@@ -13,7 +13,7 @@ import { dashboard } from "@/routes";
 
 
 const breadcrumbs = (financial_flow_id: number) => [
-    { title: "Dashboard", href:  dashboard.url()},
+    { title: "Dashboard", href: dashboard.url() },
     { title: "Financial Flows", href: financialFlows.index().url },
     { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
     { title: "Add Financial Launch", href: "/financial-launches/create" },
@@ -22,6 +22,7 @@ const breadcrumbs = (financial_flow_id: number) => [
 type FinancialLaunchesItem = {
     id: string
     month: string;
+    card_expiration_date?: string;
     financial_flow_id: number;
 };
 
@@ -31,6 +32,7 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
 
     const { data, setData, post } = useForm({
         month: new Date().toISOString().slice(0, 7),
+        card_expiration_date: null as string | null,
         items: [] as FinancialLaunchesItem[],
     })
 
@@ -39,7 +41,7 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        post(financialLaunches.store.url({financial_flow: financial_flow_id!}))
+        post(financialLaunches.store.url({ financial_flow: financial_flow_id! }))
         toast.success(trans("Financial launch created successfully"));
     }
 
@@ -51,7 +53,7 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
                 <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-6">
-                            <div className="flex items-center justify-between gap-5">
+                            <div className="flex items-center justify-start gap-5">
                                 <div className="grid gap-2">
                                     <label htmlFor="date" className="font-medium">{trans("Month")}</label>
                                     <Input
@@ -65,7 +67,21 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
                                     />
 
                                 </div>
+
+                                <div className="grid gap-2">
+                                    <label htmlFor="card_expiration_date" className="font-medium">{trans("Card expiration date")}</label>
+                                    <Input
+                                        id="card_expiration_date"
+                                        type="date"
+                                        name="card_expiration_date"
+                                        value={data.card_expiration_date ?? ''}
+                                        placeholder={trans("card expiration date")}
+                                        className="block flex-1 border rounded px-3 py-2"
+                                        onChange={(e) => setData('card_expiration_date', e.target.value || null)}
+                                    />
+                                </div>
                             </div>
+
 
 
                             <div className="flex items-center justify-center md:justify-end gap-4">

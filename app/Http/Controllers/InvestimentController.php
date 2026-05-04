@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PaymentMethod;
+use App\Models\Investiment;
 use Illuminate\Http\Request;
 
-class PaymentMethodController extends Controller
+class InvestimentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,17 +18,9 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-     public function fetch_create(Request $request)
+    public function create()
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:payment_methods,name',
-        ]);
-
-        $payment_methods = \App\Models\PaymentMethod::create([
-            'name' => $request->name
-        ]);
-
-        return response()->json($payment_methods);
+        //
     }
 
     /**
@@ -42,7 +34,7 @@ class PaymentMethodController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PaymentMethod $paymentMethod)
+    public function show(Investiment $investiment)
     {
         //
     }
@@ -50,7 +42,7 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PaymentMethod $paymentMethod)
+    public function edit(Investiment $investiment)
     {
         //
     }
@@ -58,7 +50,7 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PaymentMethod $paymentMethod)
+    public function update(Request $request, Investiment $investiment)
     {
         //
     }
@@ -66,7 +58,7 @@ class PaymentMethodController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PaymentMethod $paymentMethod)
+    public function destroy(Investiment $investiment)
     {
         //
     }

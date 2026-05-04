@@ -18,9 +18,17 @@ class ExpenseTypeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+   public function fetch_create(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255|unique:expense_types,name',
+        ]);
+
+        $expense_types = \App\Models\ExpenseType::create([
+            'name' => $request->name
+        ]);
+
+        return response()->json($expense_types);
     }
 
     /**

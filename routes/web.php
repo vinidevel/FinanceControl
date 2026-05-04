@@ -37,10 +37,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::group(['prefix' => 'financial-launches/{financial_launch}'], function () {
             Route::resource('revenues', \App\Http\Controllers\RevenueController::class);
         });
-        Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
-        Route::resource('expense-types', \App\Http\Controllers\ExpenseTypeController::class);
-        Route::resource('revenue-types', \App\Http\Controllers\RevenueTypeController::class);
-        Route::resource('payment-methods', \App\Http\Controllers\PaymentMethodController::class);
+        Route::group(['prefix' => 'financial-launches/{financial_launch}'], function () {
+            Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+        });
+  
+        // Route::resource('expense-types', \App\Http\Controllers\ExpenseTypeController::class);
+        // Route::resource('revenue-types', \App\Http\Controllers\RevenueTypeController::class);
+        Route::post('revenue-types/create/fetch', [\App\Http\Controllers\RevenueTypeController::class, 'fetch_create'])->name('revenue_types.create.fetch');
+        Route::post('expense-types/create/fetch', [\App\Http\Controllers\ExpenseTypeController::class, 'fetch_create'])->name('expense_types.create.fetch');
+        // Route::resource('payment-methods', \App\Http\Controllers\PaymentMethodController::class);
+        Route::post('payment-methods/create/fetch', [\App\Http\Controllers\PaymentMethodController::class, 'fetch_create'])->name('payment_methods.create.fetch');
     });
 
     Route::post('/tokens/create', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'generateToken'])->name('tokens.create');

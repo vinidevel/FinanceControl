@@ -13,6 +13,24 @@ class Revenue extends Model
         'value',
         'description',
     ];
+    protected static function booted()
+    {
+        static::created(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+
+        static::updated(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+
+        static::deleted(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+    }
+
     public function financialLaunch()
     {
         return $this->belongsTo(FinancialLaunch::class, 'financial_launch_id');
@@ -21,5 +39,7 @@ class Revenue extends Model
     {
         return $this->belongsTo(RevenueType::class, 'revenue_type_id');
     }
+
+  
 
 }

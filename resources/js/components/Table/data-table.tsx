@@ -16,6 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { DataTablePagination } from "./data-table-pagination"
+import { trans } from "@/composables/translate"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -76,7 +77,7 @@ export function DataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    {trans("No results.")}
                                 </TableCell>
                             </TableRow>
                         )}

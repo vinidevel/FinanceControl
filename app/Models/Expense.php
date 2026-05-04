@@ -13,7 +13,26 @@ class Expense extends Model
         'payment_method_id',
         'value',
         'description',
+        'date_expense',
     ];
+    protected static function booted()
+    {
+        static::created(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+
+        static::updated(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+
+        static::deleted(function ($model) {
+            $launch = FinancialLaunch::find($model->financial_launch_id);
+            if ($launch) $launch->recalculateNetWorthAndCascade();
+        });
+    }
+
     public function financialLaunch()
     {
         return $this->belongsTo(FinancialLaunch::class, 'financial_launch_id');

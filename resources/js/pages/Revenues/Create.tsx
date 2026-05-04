@@ -11,15 +11,24 @@ import { Button } from "@/components/ui/button";
 import financialLaunches from "@/routes/financial-launches";
 import { dashboard } from "@/routes";
 
+import { fetchWithCsrf } from "@/utils/fetch";
+import { ComboboxDemo } from "@/components/global/FindOrCreate";
+import { useState } from "react";
+import revenue_types from "@/routes/revenue_types";
 
 
-const breadcrumbs = ({ financial_flow_id, financial_launch_id }: { financial_flow_id: number, financial_launch_id: number }) => [
+
+
+
+const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
     { title: "Dashboard", href:  dashboard.url()},
-    { title: "Financial Flows", href: financialFlows.index().url },
-    { title: "Financial Launches", href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
-    { title: "Revenues", href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
-    { title: "Add Revenue", href: "/revenues/create" },
+    { title: trans("Financial Flows"), href: financialFlows.index().url },
+    { title: trans("Financial Launches"), href: financialLaunches.index({ financial_flow: financial_flow_id }).url },
+    { title: trans("Revenues"), href: revenueRoutes.index({ financial_flow: financial_flow_id, financial_launch: financial_launch_id }).url },
+    { title: trans("Add Revenue"), href: "/revenues/create" },
+
 ];
+
 
 type RevenuesItem = {
     id: string
@@ -30,6 +39,9 @@ type RevenuesItem = {
 };
 
 
+function handleCreateRevenueType(value: string, financial_flow_id: string): Promise<{ data: RevenueType }> {
+    return fetchWithCsrf().post(revenue_types.create.fetch({financial_flow: financial_flow_id}).url, { name: value })
+}
 
 
 
@@ -37,10 +49,11 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
     const { data, setData, post } = useForm({
         description: '',
         value: 0,
-        revenue_type_id: 0,
+        revenueType: '',
         items: [] as RevenuesItem[],
     })
 
+    const [revenueTypesState, setRevenueTypesState] = useState<RevenueType[]>(revenue_types ?? []);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -60,18 +73,15 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs({
-            financial_flow_id: financial_launch_id!,
-            financial_launch_id: financial_launch_id!
-        })}>
+        <AppLayout breadcrumbs={breadcrumbs(financial_launch_id!, financial_flow_id!)}>
             <Head title={trans("Add revenue")} />
             <div className="px-4 py-6">
                 <Heading title={trans("Add revenue")} description={trans("Create a new revenue record")} />
                 <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                     <form onSubmit={handleSubmit}>
-                            <div className="space-y-6">
+                        <div className="space-y-6">
                             <div className="flex items-center justify-between gap-5">
-                             <div className="grid gap-2 flex-1">
+                                <div className="grid gap-2 flex-1">
                                     <label htmlFor="description" className="font-medium">{trans("Description")}</label>
                                     <Input
                                         type="text"
@@ -100,22 +110,28 @@ export default function Create({ financial_launch_id, revenue_types, financial_f
 
                                 </div>
 
-                                 <div className="grid gap-2">
-                                    <label htmlFor="revenue_type_id" className="font-medium">{trans("Revenue Type")}</label>
 
-                                    <select
-                                        name="revenue_type_id"
-                                        value={String(data.revenue_type_id)}
-                                        onChange={(e) => setData('revenue_type_id', Number(e.target.value))}
-                                        className="block flex-1 border rounded px-3 py-2 "
-                                    >
-                                        <option value="0">{trans("Select Revenue Type")}</option>
-                                        {(revenue_types ?? []).map((rt: RevenueType) => (
-                                            <option className="text-black" key={rt.id} value={rt.id}>{rt.name}</option>
-                                        ))}
-                                    </select>
 
+                                <div className="grid gap-2">
+                                    <label className="font-medium">{trans("Revenue Type")}</label>
+                                    <ComboboxDemo
+                                        placeholder={trans("Select a Revenue Type")}
+                                        items={[...revenueTypesState.map(revenue_types => ({ value: revenue_types.id.toString(), label: revenue_types.name }))]}
+                                        label={data.revenueType}
+                                        value={data.revenueType}
+                                        setValue={(value) => setData(prev => ({ ...prev, revenueType: value }))}
+                                        handleCreate={(value) => {
+                                            handleCreateRevenueType(value, financial_flow_id!.toString()).then(response => {
+                                                setRevenueTypesState(prev => [...prev, response.data])
+                                                setData(prev => ({ ...prev, revenueType: `${response.data.id}` }))
+                                                toast.success(trans("Revenue Type created successfully"))
+                                            }).catch((e) => {
+                                                toast.error(e.response.data.message)
+                                            })
+                                        }} />
                                 </div>
+
+
                             </div>
 
 
