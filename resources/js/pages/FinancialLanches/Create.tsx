@@ -22,7 +22,6 @@ const breadcrumbs = (financial_flow_id: number) => [
 type FinancialLaunchesItem = {
     id: string
     month: string;
-    card_expiration_date?: string;
     financial_flow_id: number;
 };
 
@@ -32,7 +31,6 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
 
     const { data, setData, post } = useForm({
         month: new Date().toISOString().slice(0, 7),
-        card_expiration_date: null as string | null,
         items: [] as FinancialLaunchesItem[],
     })
 
@@ -68,18 +66,7 @@ export default function Create({ financial_flow_id }: { financial_flow_id?: numb
 
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <label htmlFor="card_expiration_date" className="font-medium">{trans("Card expiration date")}</label>
-                                    <Input
-                                        id="card_expiration_date"
-                                        type="date"
-                                        name="card_expiration_date"
-                                        value={data.card_expiration_date ?? ''}
-                                        placeholder={trans("card expiration date")}
-                                        className="block flex-1 border rounded px-3 py-2"
-                                        onChange={(e) => setData('card_expiration_date', e.target.value || null)}
-                                    />
-                                </div>
+                               
                             </div>
 
 

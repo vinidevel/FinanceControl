@@ -13,6 +13,9 @@ import ExpenseController from "@/actions/App/Http/Controllers/ExpenseController"
 import { dashboard } from "@/routes";
 import financialFlows from "@/routes/financial-flows";
 import expensesRoutes from "@/routes/expenses";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ComboboxDemo } from "@/components/global/FindOrCreate";
+import { useState } from "react";
 
 
 
@@ -23,7 +26,10 @@ interface Props {
     financial_flow_id: number;
     financial_launch_id: number;
     payment_methods?: { id: number; name: string }[];
+    credit_cards?: { id: number; name: string; expiration_date: string }[];
 }
+
+type CreditCard = { id: number; name: string; expiration_date: string };
 
 
 const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => [
@@ -35,16 +41,19 @@ const breadcrumbs = (financial_launch_id: number, financial_flow_id: number) => 
 ];
 
 
-export default function Edit({ expense, expense_types, payment_methods, financial_flow_id, financial_launch_id }: Props) {
-
+export default function Edit({ expense, expense_types, payment_methods, financial_flow_id, financial_launch_id, credit_cards }: Props) {
+    const [showModal, setShowModal] = useState(false);
+    const [selectedCard, setSelectedCard] = useState('');
+    const [installments, setInstallments] = useState(1);
 
     const { data, setData, put, processing, errors } = useForm({
         description: expense.description ?? '',
         value: expense.value ?? 0,
         expense_type_id: expense.expense_type_id ?? 0,
         payment_method_id: expense.payment_method_id ?? 0,
-
-
+        date_expense: expense.date_expense ?? '',
+        credit_card_id: '',
+        installments_quantity: 1,
     })
 
 
@@ -67,6 +76,39 @@ export default function Edit({ expense, expense_types, payment_methods, financia
             <div className="px-4 py-6">
                 <Heading title={trans("Edit expense")} description={trans("Edit an existing expense record")} />
                 <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                    <Dialog open={showModal} onOpenChange={setShowModal}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{trans("Credit Card Details")}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                                <div className="grid gap-2">
+                                    <label className="font-medium">{trans("Select Credit Card")}</label>
+                                    <ComboboxDemo
+                                        placeholder={trans("Select a Credit Card")}
+                                        items={credit_cards?.map(card => ({ value: card.id.toString(), label: card.name })) || []}
+                                        value={selectedCard}
+                                        setValue={setSelectedCard}
+                                        handleCreate={() => Promise.resolve({ data: null })}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <label className="font-medium">{trans("Number of Installments")}</label>
+                                    <Input
+                                        type="number"
+                                        min="1"
+                                        value={installments}
+                                        onChange={(e) => setInstallments(Number(e.target.value))}
+                                    />
+                                </div>
+                                <Button onClick={() => {
+                                    setData('credit_card_id', selectedCard);
+                                    setData('installments_quantity', installments);
+                                    setShowModal(false);
+                                }}>{trans("Confirm")}</Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                     <form onSubmit={handleUpdate}>
 
                         {/* Display errors */}
@@ -139,7 +181,13 @@ export default function Edit({ expense, expense_types, payment_methods, financia
                                     <select
                                         name="payment_method_id"
                                         value={String(data.payment_method_id)}
-                                        onChange={(e) => setData('payment_method_id', Number(e.target.value))}
+                                        onChange={(e) => {
+                                            const selectedMethod = (payment_methods ?? []).find(pm => pm.id.toString() === e.target.value);
+                                            if (selectedMethod && selectedMethod.name === 'Cartão de Crédito') {
+                                                setShowModal(true);
+                                            }
+                                            setData('payment_method_id', Number(e.target.value));
+                                        }}
                                         className="block flex-1 border rounded px-3 py-2 "
                                     >
                                         <option value="0">{trans("Select Payment Method")}</option>
@@ -150,9 +198,17 @@ export default function Edit({ expense, expense_types, payment_methods, financia
 
                                     {errors.payment_method_id && <div className="text-red-500 text-sm">{errors.payment_method_id}</div>}
                                 </div>
-                                     
 
-                               
+                                <div className="grid gap-2">
+                                    <label htmlFor="date_expense" className="font-medium">{trans("Date Expense")}</label>
+                                    <input
+                                        type="date"
+                                        className="block w-full border rounded px-3 py-2"
+                                        value={data.date_expense}
+                                        onChange={(e) => setData('date_expense', e.target.value)}
+                                    />
+                                    {errors.date_expense && <div className="text-red-500 text-sm">{errors.date_expense}</div>}
+                                </div>
                             </div>
 
 
@@ -163,7 +219,7 @@ export default function Edit({ expense, expense_types, payment_methods, financia
 
 
                         <Button className='mt-4' type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Update Revenue'}
+                            {processing ? 'Saving...' : 'Update Expense'}
                         </Button>
 
 

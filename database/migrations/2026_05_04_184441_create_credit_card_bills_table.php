@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::table('financial_launches', function (Blueprint $table) {
-            $table->decimal('net_worth', 15, 2)->default(0);
+        Schema::create('credit_card_bills', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('credit_card_id')->constrained('credit_cards')->onDelete('cascade');
+            $table->date('reference_date')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('financial_launches', function (Blueprint $table) {
-            $table->dropColumn('net_worth');
-        });
+        Schema::dropIfExists('credit_card_bills');
     }
 };

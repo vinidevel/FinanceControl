@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ExpenseType;
+use App\Models\PaymentMethod;
 use App\Models\UnityType;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -27,6 +28,10 @@ class DatabaseSeeder extends Seeder
 
         if (ExpenseType::count() === 0) {
             $this->call(ExpenseTypeSeeder::class);
+        }
+
+        if (PaymentMethod::count() === 0) {
+            $this->call(PaymentMethodSeeder::class);
         }
     }
 }
