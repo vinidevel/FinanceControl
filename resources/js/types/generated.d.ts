@@ -106,7 +106,6 @@ declare namespace App.Models {
         totalRevenues?: number;
         totalExpenses?: number;
         net_worth?: number;
-        card_expiration_date?: string | null;
     };
 
     export type Revenue = {

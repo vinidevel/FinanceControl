@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::table('financial_launches', function (Blueprint $table) {
-            $table->decimal('net_worth', 15, 2)->default(0);
+        Schema::create('credit_cards', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->date('expiration_date')->nullable();
+            $table->date('invoice_closing_date')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('financial_launches', function (Blueprint $table) {
-            $table->dropColumn('net_worth');
-        });
+        Schema::dropIfExists('credit_cards');
     }
 };

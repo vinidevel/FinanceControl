@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FinancialFlow;
 use App\Models\FinancialLaunch;
+use App\Models\PaymentInstallment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -24,14 +25,35 @@ class FinancialLaunchController extends Controller
 
 
 
+        
+
         $financialLaunches = $query->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
             foreach ($financialLaunches as $launch) {
+                $month = Carbon::parse($launch->month);
+
                 $totalRevenues = $launch->revenues()->sum('value');
-                $totalExpenses = $launch->expenses()->sum('value');
+
+                $nonCardExpenses = (float) $launch->expenses()
+                    ->whereHas('paymentMethod', function ($query) {
+                        $query->where('name', '<>', 'Cartão de Crédito');
+                    })
+                    ->sum('value');
+
+                $cardInstallments = (float) PaymentInstallment::whereHas('expense', function ($query) use ($launch) {
+                        $query->where('financial_launch_id', $launch->id);
+                    })
+                    ->whereHas('creditCardBill', function ($query) use ($month) {
+                        $query->whereYear('reference_date', $month->year)
+                              ->whereMonth('reference_date', $month->month);
+                    })
+                    ->sum('installment_value');
+
+                $totalExpenses = round($nonCardExpenses + $cardInstallments, 2);
                 $monthNet = $totalRevenues - $totalExpenses; // saldo apenas do mês
+
                 $launch->totalRevenues = $totalRevenues;
                 $launch->totalExpenses = $totalExpenses;
                 // preserve DB `net_worth` (saldo acumulado) and expose month difference separately
@@ -45,7 +67,7 @@ class FinancialLaunchController extends Controller
             'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
             'totalRevenues' => $financialLaunches->sum('totalRevenues'),
             'totalExpenses' => $financialLaunches->sum('totalExpenses'),
-            'netWorth' => $financialLaunches->sum('net_worth'), // soma do campo armazenado no DB (saldo acumulado)
+            'netWorth' => $financialLaunches->sum('net_worth'), 
         ]);
     }
 
@@ -67,20 +89,16 @@ class FinancialLaunchController extends Controller
     {
         $request->validate([
             'month' => 'required|date_format:Y-m',
-            'card_expiration_date' => 'nullable|date',
         ]);
 
    
 
         // Ensure the stored date has day = 1 (Y-m-01)
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
-        $cardExpirationDate = $request->filled('card_expiration_date')
-            ? Carbon::parse($request->card_expiration_date)->toDateString()
-            : null;
+       
 
         FinancialLaunch::create([
             'month' => $month,
-            'card_expiration_date' => $cardExpirationDate,
             'financial_flow_id' => $financialFlow->id,
         ]);
 
@@ -115,17 +133,13 @@ class FinancialLaunchController extends Controller
     {
         $request->validate([
             'month' => 'required|date_format:Y-m',
-            'card_expiration_date' => 'nullable|date',
         ]);
 
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
-        $cardExpirationDate = $request->filled('card_expiration_date')
-            ? Carbon::parse($request->card_expiration_date)->toDateString()
-            : null;
+       
 
         $financialLaunch->update([
             'month' => $month,
-            'card_expiration_date' => $cardExpirationDate,
         ]);
 
         return to_route('financial-launches.index', ['financial_flow_id' => $financialLaunch->financial_flow_id])->with('success', 'Financial Launch updated successfully.');

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\FinancialLaunch;
+use App\Models\ExpenseType;
+use App\Models\PaymentMethod;
+use App\Models\PaymentInstallment;
 use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
@@ -41,9 +45,14 @@ class Expense extends Model
     {
         return $this->belongsTo(ExpenseType::class, 'expense_type_id');
     }
+
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
-    
+
+    public function paymentInstallments()
+    {
+        return $this->hasMany(PaymentInstallment::class, 'expense_id');
+    }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\PaymentInstallment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class FinancialLaunch extends Model
 {
@@ -11,7 +13,6 @@ class FinancialLaunch extends Model
               'month',
               'financial_flow_id',
               'net_worth',
-              'card_expiration_date',
        ];
 
        protected static function booted()
@@ -57,8 +58,26 @@ class FinancialLaunch extends Model
         */
        public function recalculateNetWorthAndCascade(): void
        {
+              $month = Carbon::parse($this->month);
+
               $totalRevenues = (float) $this->revenues()->sum('value');
-              $totalExpenses = (float) $this->expenses()->sum('value');
+
+              $nonCardExpenses = (float) $this->expenses()
+                     ->whereHas('paymentMethod', function ($query) {
+                            $query->where('name', '<>', 'Cartão de Crédito');
+                     })
+                     ->sum('value');
+
+              $cardInstallments = (float) PaymentInstallment::whereHas('expense', function ($query) {
+                            $query->where('financial_launch_id', $this->id);
+                     })
+                     ->whereHas('creditCardBill', function ($query) use ($month) {
+                            $query->whereYear('reference_date', $month->year)
+                                  ->whereMonth('reference_date', $month->month);
+                     })
+                     ->sum('installment_value');
+
+              $totalExpenses = round($nonCardExpenses + $cardInstallments, 2);
               $delta = round($totalRevenues - $totalExpenses, 2);
 
               $previous = self::where('financial_flow_id', $this->financial_flow_id)

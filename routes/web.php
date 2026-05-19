@@ -23,7 +23,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Start Places Routes
     Route::resource('places', \App\Http\Controllers\PlaceController::class);
     // End Places Routes
-
     // Start Products Routes
     Route::resource('products', \App\Http\Controllers\ProductController::class);
     // End Products Routes
@@ -45,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Route::resource('revenue-types', \App\Http\Controllers\RevenueTypeController::class);
         Route::post('revenue-types/create/fetch', [\App\Http\Controllers\RevenueTypeController::class, 'fetch_create'])->name('revenue_types.create.fetch');
         Route::post('expense-types/create/fetch', [\App\Http\Controllers\ExpenseTypeController::class, 'fetch_create'])->name('expense_types.create.fetch');
+        Route::post('credit_cards/create/fetch', [\App\Http\Controllers\CreditCardController::class, 'fetch_create'])->name('credit_cards.create.fetch');
         // Route::resource('payment-methods', \App\Http\Controllers\PaymentMethodController::class);
         Route::post('payment-methods/create/fetch', [\App\Http\Controllers\PaymentMethodController::class, 'fetch_create'])->name('payment_methods.create.fetch');
     });
