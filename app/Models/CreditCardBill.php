@@ -17,4 +17,9 @@ class CreditCardBill extends Model
     {
         return $this->belongsTo(CreditCard::class, 'credit_card_id');
     }
+
+    public function paymentInstallments()
+    {
+        return $this->hasMany(PaymentInstallment::class, 'credit_card_bill_id');
+    }
 }

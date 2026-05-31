@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CreditCardBill;
+use App\Models\Expense;
 use App\Models\FinancialFlow;
 use App\Models\FinancialLaunch;
 use App\Models\PaymentInstallment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class FinancialLaunchController extends Controller
 {
@@ -24,15 +27,13 @@ class FinancialLaunchController extends Controller
         }
 
 
-
-        
-
         $financialLaunches = $query->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
             foreach ($financialLaunches as $launch) {
                 $month = Carbon::parse($launch->month);
+
 
                 $totalRevenues = $launch->revenues()->sum('value');
 
@@ -42,14 +43,18 @@ class FinancialLaunchController extends Controller
                     })
                     ->sum('value');
 
-                $cardInstallments = (float) PaymentInstallment::whereHas('expense', function ($query) use ($launch) {
-                        $query->where('financial_launch_id', $launch->id);
-                    })
-                    ->whereHas('creditCardBill', function ($query) use ($month) {
-                        $query->whereYear('reference_date', $month->year)
-                              ->whereMonth('reference_date', $month->month);
-                    })
-                    ->sum('installment_value');
+                $cardInstallments = PaymentInstallment::whereHas('creditCardBill', function ($query) use ($month) {
+                    $query->whereBetween('reference_date', [Carbon::parse($month->startOfMonth())->startOfDay(), Carbon::parse($month->endOfMonth())->endOfDay()]);
+                })->with('expense')->get();
+
+                if($cardInstallments->isNotEmpty()) {
+
+                    $cardInstallments = $cardInstallments->sum(function ($installment) {
+                        return $installment->installment_value;
+                    });
+                } else {
+                    $cardInstallments = 0;
+                }
 
                 $totalExpenses = round($nonCardExpenses + $cardInstallments, 2);
                 $monthNet = $totalRevenues - $totalExpenses; // saldo apenas do mês
@@ -58,16 +63,16 @@ class FinancialLaunchController extends Controller
                 $launch->totalExpenses = $totalExpenses;
                 // preserve DB `net_worth` (saldo acumulado) and expose month difference separately
                 $launch->month_net = $monthNet;
+                $cardInstallments = 0;
             }
 
-       
 
         return inertia('FinancialLanches/Index', [
             'financialLaunches' => $financialLaunches,
             'financial_flow_id' => $financialFlow ? $financialFlow->id : null,
             'totalRevenues' => $financialLaunches->sum('totalRevenues'),
             'totalExpenses' => $financialLaunches->sum('totalExpenses'),
-            'netWorth' => $financialLaunches->sum('net_worth'), 
+            'netWorth' => $financialLaunches->sum('net_worth'),
         ]);
     }
 
@@ -91,11 +96,11 @@ class FinancialLaunchController extends Controller
             'month' => 'required|date_format:Y-m',
         ]);
 
-   
+
 
         // Ensure the stored date has day = 1 (Y-m-01)
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
-       
+
 
         FinancialLaunch::create([
             'month' => $month,
@@ -136,7 +141,7 @@ class FinancialLaunchController extends Controller
         ]);
 
         $month = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()->toDateString();
-       
+
 
         $financialLaunch->update([
             'month' => $month,
