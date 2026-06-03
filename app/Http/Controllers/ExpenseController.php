@@ -106,6 +106,9 @@ class ExpenseController extends Controller
         $remaining = $expense->value - ($valuePerInstallment * $installmentsQuantity);
         $affectedMonths = [];
 
+        if ($expense->date_expense >= $creditCard->invoice_closing_date) {
+            // code...
+        
         for ($i = 1; $i <= $installmentsQuantity; $i++) {
             $billDate = $expenseDate->copy()->addDays(30 * $i);
 
@@ -129,6 +132,36 @@ class ExpenseController extends Controller
             // collect affected month (YYYY-MM-01) to recalculate launches later
             $monthKey = $billDate->copy()->startOfMonth()->toDateString();
             $affectedMonths[$monthKey] = $monthKey;
+        }
+        } else {
+            // if expense date is before closing date, first installment goes to current month bill, others to next months
+        
+            for ($i = 1; $i <= $installmentsQuantity; $i++) {
+                for ($i = 1; $i <= $installmentsQuantity; $i++) {
+            $billDate = $expenseDate->copy()->addDays(1 * $i);
+
+            $bill = CreditCardBill::create([
+                'credit_card_id' => $creditCard->id,
+                'reference_date' => $billDate->toDateString(),
+            ]);
+
+            $installmentValue = $valuePerInstallment;
+            if ($i === $installmentsQuantity) {
+                $installmentValue += $remaining;
+            }
+
+            PaymentInstallment::create([
+                'expense_id' => $expense->id,
+                'installment_number' => $i,
+                'installment_value' => $installmentValue,
+                'credit_card_bill_id' => $bill->id,
+            ]);
+
+            // collect affected month (YYYY-MM-01) to recalculate launches later
+            $monthKey = $billDate->copy()->startOfMonth()->toDateString();
+            $affectedMonths[$monthKey] = $monthKey;
+            }
+            }
         }
 
         // trigger recalculation for each affected FinancialLaunch (if exists)
